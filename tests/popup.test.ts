@@ -1,6 +1,6 @@
 // tests/popup.test.ts
 import { describe, it, expect } from 'vitest'
-import { isAutoSite, siteStatusText } from '../src/popup'
+import { isAutoSite, siteStatusText, isSiteActive } from '../src/popup'
 
 describe('isAutoSite', () => {
   it('returns true for github.com origin', () => {
@@ -59,5 +59,23 @@ describe('siteStatusText', () => {
     const text = siteStatusText({ hasOrigin: true, isAuto: false, enabled: false })
     expect(text).toContain('Off')
     expect(text.toLowerCase()).toContain('turn on')
+  })
+})
+
+describe('isSiteActive', () => {
+  it('built-in site is active by default', () => {
+    expect(isSiteActive({ isAuto: true, hasPermission: true, flag: true })).toBe(true)
+  })
+  it('built-in site turned off reads inactive', () => {
+    expect(isSiteActive({ isAuto: true, hasPermission: true, flag: false })).toBe(false)
+  })
+  it('non-built-in site WITHOUT permission is OFF even though the flag defaults true (the bug fix)', () => {
+    expect(isSiteActive({ isAuto: false, hasPermission: false, flag: true })).toBe(false)
+  })
+  it('non-built-in site WITH permission and flag on is active', () => {
+    expect(isSiteActive({ isAuto: false, hasPermission: true, flag: true })).toBe(true)
+  })
+  it('non-built-in site with permission but turned off is inactive', () => {
+    expect(isSiteActive({ isAuto: false, hasPermission: true, flag: false })).toBe(false)
   })
 })

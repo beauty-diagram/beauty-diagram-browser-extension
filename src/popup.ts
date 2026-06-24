@@ -17,6 +17,19 @@ export function siteStatusText(o: { hasOrigin: boolean; isAuto: boolean; enabled
   return o.enabled ? 'Active on this site' : 'Off — turn on to beautify mermaid here'
 }
 
+/** Pure helper — a site is "active" iff it's built-in OR we already hold its host
+ *  permission, AND it hasn't been turned off. A non-built-in site with no granted
+ *  permission must read as OFF even though the stored flag defaults to true. */
+export function isSiteActive(o: { isAuto: boolean; hasPermission: boolean; flag: boolean }): boolean {
+  return (o.isAuto || o.hasPermission) && o.flag
+}
+
+function hasHostPermission(origin: string): Promise<boolean> {
+  return new Promise((resolve) =>
+    chrome.permissions.contains({ origins: [`${origin}/*`] }, (granted) => resolve(!!granted)),
+  )
+}
+
 /**
  * Wire the popup. Listeners are attached SYNCHRONOUSLY (before any await) so a
  * failure while loading async state (chrome.tabs.query / storage) can never
@@ -113,8 +126,12 @@ export function initPopup(): void {
       origin = isHttp ? new URL(url).origin : null
       if (origin) {
         if (hostEl) hostEl.textContent = origin.replace(/^https?:\/\//, '')
-        siteEl.checked = await isSiteEnabled(origin)
-        if (statusEl) statusEl.textContent = siteStatusText({ hasOrigin: true, isAuto: isAutoSite(origin), enabled: siteEl.checked })
+        const isAuto = isAutoSite(origin)
+        const hasPerm = isAuto ? true : await hasHostPermission(origin)
+        const flag = await isSiteEnabled(origin)
+        const active = isSiteActive({ isAuto, hasPermission: hasPerm, flag })
+        siteEl.checked = active
+        if (statusEl) statusEl.textContent = siteStatusText({ hasOrigin: true, isAuto, enabled: active })
       } else {
         siteEl.disabled = true
         document.getElementById('siteRow')?.classList.add('off')
