@@ -46,8 +46,12 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
 function fetchViaBackground(url: string): Promise<FetchSvgResponse> {
   const msg: FetchSvgRequest = { type: 'bd-fetch-svg', url }
   return new Promise((resolve) =>
-    chrome.runtime.sendMessage(msg, (res: FetchSvgResponse) =>
-      resolve(res ?? { ok: false, status: 0, body: '' })),
+    chrome.runtime.sendMessage(msg, (res: FetchSvgResponse) => {
+      // Read lastError so Chrome doesn't log an unchecked "Could not establish
+      // connection" error when the service worker is asleep on first call.
+      void chrome.runtime.lastError
+      resolve(res ?? { ok: false, status: 0, body: '' })
+    }),
   )
 }
 
