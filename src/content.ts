@@ -29,7 +29,10 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
   }
   // B: already-rendered diagrams (GitHub etc.) — needs quirk.recoverSource for the source
   if (ctx.replaceRendered !== false && ctx.quirks?.recoverSource) {
-    for (const node of detectRenderedDiagrams(document.body)) {
+    const rendered = ctx.quirks.detectRendered
+      ? ctx.quirks.detectRendered(document.body)
+      : detectRenderedDiagrams(document.body)
+    for (const node of rendered) {
       if (node.closest('.bd-mount')) continue
       const source = ctx.quirks.recoverSource(node)
       if (!source) continue
