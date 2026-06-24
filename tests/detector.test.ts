@@ -55,6 +55,30 @@ describe('detectSourceBlocks', () => {
     expect(hits).toHaveLength(1)
     expect(hits[0].bgOverride).toBe('dark')
   })
+
+  it('handlePlantuml:false — skips plantuml blocks but still detects mermaid', () => {
+    const root = dom(
+      '<pre><code>@startuml\nAlice -&gt; Bob\n@enduml</code></pre>' +
+      '<pre><code>graph TD\nA--&gt;B</code></pre>'
+    )
+    const hits = detectSourceBlocks(root, { handlePlantuml: false })
+    expect(hits).toHaveLength(1)
+    expect(hits[0].sourceFormat).toBe('mermaid')
+  })
+
+  it('handlePlantuml:true — detects plantuml blocks normally', () => {
+    const root = dom('<pre><code>@startuml\nAlice -&gt; Bob\n@enduml</code></pre>')
+    const hits = detectSourceBlocks(root, { handlePlantuml: true })
+    expect(hits).toHaveLength(1)
+    expect(hits[0].sourceFormat).toBe('plantuml')
+  })
+
+  it('handlePlantuml default (no opts) — detects plantuml blocks normally', () => {
+    const root = dom('<pre><code>@startuml\nAlice -&gt; Bob\n@enduml</code></pre>')
+    const hits = detectSourceBlocks(root)
+    expect(hits).toHaveLength(1)
+    expect(hits[0].sourceFormat).toBe('plantuml')
+  })
 })
 
 describe('detectRenderedDiagrams', () => {

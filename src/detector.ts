@@ -43,7 +43,7 @@ function stripLeadingDirectiveLines(raw: string): string {
 }
 
 /** Detector A: scan for code blocks whose text is a mermaid/plantuml source. */
-export function detectSourceBlocks(root: ParentNode): SourceHit[] {
+export function detectSourceBlocks(root: ParentNode, opts?: { handlePlantuml?: boolean }): SourceHit[] {
   const hits: SourceHit[] = []
   const codes = root.querySelectorAll('pre > code, code[class*="mermaid"], code[class*="plantuml"]')
   for (const code of Array.from(codes)) {
@@ -55,6 +55,7 @@ export function detectSourceBlocks(root: ParentNode): SourceHit[] {
     let fmt = classifySource(raw, hint)
     if (!fmt) fmt = classifySource(stripLeadingDirectiveLines(raw), hint)
     if (!fmt) continue
+    if (fmt === 'plantuml' && opts?.handlePlantuml === false) continue
     const { overrides, source } = parseDirective(fmt, raw)
     if (isExcluded(overrides)) continue
     // mount target is the enclosing <pre> when present, else the <code>
