@@ -99,6 +99,19 @@ export async function verifyKey(deps: VerifyDeps): Promise<VerifyKeyResponse> {
   }
 }
 
+// --- first-run onboarding: open options page once on install ---
+
+if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
+  chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason !== 'install') return
+    chrome.storage.local.get(['bd:onboarded'], (r) => {
+      if (r['bd:onboarded']) return
+      chrome.storage.local.set({ 'bd:onboarded': true }, () => {})
+      chrome.runtime.openOptionsPage()
+    })
+  })
+}
+
 // --- chrome message listener (guarded for jsdom test safety) ---
 
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {

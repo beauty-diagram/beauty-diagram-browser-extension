@@ -10,6 +10,13 @@ export function isAutoSite(origin: string): boolean {
   } catch { return false }
 }
 
+/** Pure helper — returns contextual status text for the popup's "This site" section */
+export function siteStatusText(o: { hasOrigin: boolean; isAuto: boolean; enabled: boolean }): string {
+  if (!o.hasOrigin) return 'Not available on this page'
+  if (o.isAuto) return o.enabled ? '✓ Built-in support — active here' : 'Built-in support — turned off here'
+  return o.enabled ? 'Active on this site' : 'Off — turn on to beautify mermaid here'
+}
+
 /**
  * Wire the popup. Listeners are attached SYNCHRONOUSLY (before any await) so a
  * failure while loading async state (chrome.tabs.query / storage) can never
@@ -22,6 +29,7 @@ export function initPopup(): void {
   const themeEl = document.getElementById('defaultTheme') as HTMLSelectElement | null
   const widthSeg = document.getElementById('widthSeg')
   const hostEl = document.getElementById('siteHost')
+  const statusEl = document.getElementById('siteStatus')
   if (!siteEl || !replaceEl || !themeEl || !widthSeg) return
   const widthBtns = Array.from(widthSeg.querySelectorAll('button'))
 
@@ -106,10 +114,12 @@ export function initPopup(): void {
       if (origin) {
         if (hostEl) hostEl.textContent = origin.replace(/^https?:\/\//, '')
         siteEl.checked = await isSiteEnabled(origin)
+        if (statusEl) statusEl.textContent = siteStatusText({ hasOrigin: true, isAuto: isAutoSite(origin), enabled: siteEl.checked })
       } else {
-        if (hostEl) hostEl.textContent = 'Not available on this page'
         siteEl.disabled = true
         document.getElementById('siteRow')?.classList.add('off')
+        if (statusEl) statusEl.textContent = siteStatusText({ hasOrigin: false, isAuto: false, enabled: false })
+        if (hostEl) hostEl.textContent = ''
       }
     } catch (err) {
       console.error('[beauty-diagram] popup state load failed (controls still work)', err)

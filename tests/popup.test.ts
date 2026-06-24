@@ -1,6 +1,6 @@
 // tests/popup.test.ts
 import { describe, it, expect } from 'vitest'
-import { isAutoSite } from '../src/popup'
+import { isAutoSite, siteStatusText } from '../src/popup'
 
 describe('isAutoSite', () => {
   it('returns true for github.com origin', () => {
@@ -29,5 +29,35 @@ describe('isAutoSite', () => {
 
   it('returns false for http variant of github (not auto)', () => {
     expect(isAutoSite('http://github.com')).toBe(false)
+  })
+})
+
+describe('siteStatusText', () => {
+  it('returns "Not available on this page" when hasOrigin is false', () => {
+    expect(siteStatusText({ hasOrigin: false, isAuto: false, enabled: false }))
+      .toBe('Not available on this page')
+  })
+
+  it('returns message containing "Built-in" and "active" when isAuto and enabled', () => {
+    const text = siteStatusText({ hasOrigin: true, isAuto: true, enabled: true })
+    expect(text).toContain('Built-in')
+    expect(text.toLowerCase()).toContain('active')
+  })
+
+  it('returns message containing "Built-in" and "turned off" when isAuto and not enabled', () => {
+    const text = siteStatusText({ hasOrigin: true, isAuto: true, enabled: false })
+    expect(text).toContain('Built-in')
+    expect(text).toContain('turned off')
+  })
+
+  it('returns "Active on this site" when not isAuto and enabled', () => {
+    expect(siteStatusText({ hasOrigin: true, isAuto: false, enabled: true }))
+      .toBe('Active on this site')
+  })
+
+  it('returns message containing "Off" and "turn on" when not isAuto and not enabled', () => {
+    const text = siteStatusText({ hasOrigin: true, isAuto: false, enabled: false })
+    expect(text).toContain('Off')
+    expect(text.toLowerCase()).toContain('turn on')
   })
 })
