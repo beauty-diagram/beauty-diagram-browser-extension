@@ -1,0 +1,24 @@
+name: Release
+on:
+  push: { tags: ['*'] }
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npm run typecheck && npm test && npm run build
+      - run: node scripts/zip.mjs
+      - name: Upload to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v5.0.0
+        with:
+          file-path: beauty-diagram-browser-extension.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      - name: GitHub Release
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes beauty-diagram-browser-extension.zip
