@@ -1,6 +1,6 @@
 // tests/detector.test.ts
 import { describe, it, expect } from 'vitest'
-import { detectSourceBlocks } from '../src/detector'
+import { detectSourceBlocks, detectRenderedDiagrams } from '../src/detector'
 
 function dom(html: string): HTMLElement {
   const d = document.createElement('div')
@@ -47,5 +47,24 @@ describe('detectSourceBlocks', () => {
     // source must NOT contain the directive line
     expect(hits[0].source).not.toContain('bd:theme')
     expect(hits[0].source.trim().startsWith('graph TD')).toBe(true)
+  })
+})
+
+describe('detectRenderedDiagrams', () => {
+  it('finds an svg with a mermaid- id', () => {
+    const root = dom('<div><svg id="mermaid-17"></svg></div>')
+    expect(detectRenderedDiagrams(root)).toHaveLength(1)
+  })
+  it('finds an svg with aria-roledescription', () => {
+    const root = dom('<svg aria-roledescription="flowchart-v2"></svg>')
+    expect(detectRenderedDiagrams(root)).toHaveLength(1)
+  })
+  it('finds a .mermaid > svg wrapper', () => {
+    const root = dom('<div class="mermaid"><svg></svg></div>')
+    expect(detectRenderedDiagrams(root)).toHaveLength(1)
+  })
+  it('ignores unrelated svgs', () => {
+    const root = dom('<svg class="octicon"></svg>')
+    expect(detectRenderedDiagrams(root)).toHaveLength(0)
   })
 })
