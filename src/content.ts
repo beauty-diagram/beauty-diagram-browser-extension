@@ -2,11 +2,12 @@ import { detectSourceBlocks, detectRenderedDiagrams } from './detector'
 import { processHit } from './swap'
 import { ApiRenderAdapter, type RenderAdapter } from './render-adapter'
 import { startObserver } from './observer'
-import { loadSettings, isSiteEnabled } from './settings'
+import { loadSettings, isSiteEnabled, getApiKey } from './settings'
 import { matchQuirks, type SiteQuirks } from './quirks'
 import { parseDirective, isExcluded } from './directives'
-import type { FetchSvgRequest, FetchSvgResponse } from './messages'
+import type { FetchSvgRequest, FetchSvgResponse, MintShareRequest, MintShareResponse } from './messages'
 import { DEFAULT_API_BASE } from './constants'
+import type { SourceFormat } from './types'
 
 export interface ScanContext {
   adapter: RenderAdapter
@@ -16,6 +17,7 @@ export interface ScanContext {
   replaceRendered?: boolean
   imageWidth?: string
   handlePlantuml?: boolean
+  shareMode?: boolean
 }
 
 export async function scanOnce(ctx: ScanContext): Promise<void> {
@@ -26,6 +28,7 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
     editorWebBase: ctx.editorWebBase,
     renderMode,
     imageWidth: ctx.imageWidth,
+    shareMode: ctx.shareMode,
   }
   // A: unrendered source blocks (works everywhere; only path for Jira/Confluence)
   for (const hit of detectSourceBlocks(document.body, { handlePlantuml: ctx.handlePlantuml })) {
@@ -76,13 +79,40 @@ function fetchViaBackground(url: string): Promise<FetchSvgResponse> {
   )
 }
 
+function mintShareViaBackground(
+  input: { source: string; sourceFormat: SourceFormat; theme: string },
+): Promise<{ token: string } | null> {
+  const msg: MintShareRequest = {
+    type: 'bd-mint-share',
+    source: input.source,
+    sourceFormat: input.sourceFormat,
+    theme: input.theme,
+  }
+  return new Promise((resolve) =>
+    chrome.runtime.sendMessage(msg, (res: MintShareResponse) => {
+      void chrome.runtime.lastError
+      if (res?.ok && res.token) {
+        resolve({ token: res.token })
+      } else {
+        resolve(null)
+      }
+    }),
+  )
+}
+
 async function main(): Promise<void> {
   if ((window as any).__bdInit) return
   ;(window as any).__bdInit = true
   const settings = await loadSettings()
   if (!(await isSiteEnabled(location.origin))) return
+  const apiKey = await getApiKey()
+  const shareMode = settings.watermarkFree && !!apiKey
   const quirks = matchQuirks(location.hostname)
-  const adapter = new ApiRenderAdapter({ apiBase: settings.apiBase ?? DEFAULT_API_BASE, fetchViaBackground })
+  const adapter = new ApiRenderAdapter({
+    apiBase: settings.apiBase ?? DEFAULT_API_BASE,
+    fetchViaBackground,
+    mintShare: shareMode ? mintShareViaBackground : undefined,
+  })
   const ctx: ScanContext = {
     adapter,
     defaultTheme: settings.defaultTheme,
@@ -91,6 +121,7 @@ async function main(): Promise<void> {
     editorWebBase: 'https://www.beauty-diagram.com',
     imageWidth: settings.defaultImageWidth,
     handlePlantuml: settings.handlePlantuml,
+    shareMode,
   }
   quirks?.spaNav?.(() => void scanOnce(ctx))
   startObserver(() => void scanOnce(ctx))
