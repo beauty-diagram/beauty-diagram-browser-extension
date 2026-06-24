@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Beauty Diagram",
+  "version": "0.1.0",
+  "description": "Beautify Mermaid & PlantUML in-place on GitHub, GitLab, Jira and Confluence.",
+  "icons": { "16": "icon-16.png", "32": "icon-32.png", "48": "icon-48.png", "128": "icon-128.png" },
+  "action": { "default_title": "Beauty Diagram", "default_icon": { "16": "icon-16.png", "32": "icon-32.png" } },
+  "background": { "service_worker": "dist/background.js", "type": "module" },
+  "options_page": "options.html",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["https://api.beauty-diagram.com/*"],
+  "optional_host_permissions": ["https://*.atlassian.net/*", "https://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*", "https://gitlab.com/*"],
+      "js": ["dist/content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    { "resources": ["content.css", "dist/*"], "matches": ["<all_urls>"] }
+  ]
+}
