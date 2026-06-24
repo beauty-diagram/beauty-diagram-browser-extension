@@ -1,5 +1,5 @@
-import { detectSourceBlocks, detectRenderedDiagrams } from './detector'
-import { processHit } from './swap'
+import { detectSourceBlocks, detectRenderedDiagrams, type SourceHit } from './detector'
+import { processHit, type SwapDeps } from './swap'
 import { ApiRenderAdapter, type RenderAdapter } from './render-adapter'
 import { startObserver } from './observer'
 import { loadSettings, isSiteEnabled, getApiKey } from './settings'
@@ -30,14 +30,11 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
     imageWidth: ctx.imageWidth,
     shareMode: ctx.shareMode,
   }
-  // A: unrendered source blocks (works everywhere; only path for Jira/Confluence)
+  // A: unrendered source blocks — attach an opt-in "Render" affordance instead of auto-rendering
   for (const hit of detectSourceBlocks(document.body, { handlePlantuml: ctx.handlePlantuml })) {
-    if (hit.node.closest('.bd-mount')) continue
-    try {
-      await processHit(hit, { ...base, theme: hit.themeOverride })
-    } catch (err) {
-      console.debug('[beauty-diagram] processHit failed; leaving native render', err)
-    }
+    const node = hit.node as HTMLElement
+    if (node.closest('.bd-mount') || node.dataset.bdAffordance) continue
+    attachRenderAffordance(hit, { ...base, theme: hit.themeOverride })
   }
   // B: already-rendered diagrams (GitHub etc.) — needs quirk.recoverSource for the source
   if (ctx.replaceRendered !== false && ctx.quirks?.recoverSource) {
@@ -65,6 +62,28 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
       }
     }
   }
+}
+
+function attachRenderAffordance(hit: SourceHit, deps: SwapDeps): void {
+  const node = hit.node as HTMLElement
+  node.dataset.bdAffordance = '1'
+  // Make the button positionable without disturbing the code text.
+  if (getComputedStyle(node).position === 'static') node.style.position = 'relative'
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.className = 'bd-render-btn'
+  btn.textContent = '◇ Render'
+  btn.setAttribute('aria-label', 'Render with Beauty Diagram')
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      await processHit(hit, deps) // replaces the code block (incl. this button) with the rendered mount
+    } catch (err) {
+      console.debug('[beauty-diagram] render failed; leaving code block', err)
+    }
+  })
+  node.appendChild(btn)
 }
 
 function fetchViaBackground(url: string): Promise<FetchSvgResponse> {

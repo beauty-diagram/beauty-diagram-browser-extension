@@ -6,42 +6,89 @@ import { scanOnce } from '../src/content'
 import type { RenderAdapter } from '../src/render-adapter'
 import { githubQuirks } from '../src/quirks/github'
 
+/**
+ * Flush microtasks + several macrotask ticks.
+ * The click handler chain goes: click → async handler → shortHash (crypto.subtle) → adapter.render
+ * — multiple awaited promises, so we drain a few setTimeouts to ensure everything settles.
+ */
+async function tick(): Promise<void> {
+  for (let i = 0; i < 5; i++) {
+    await new Promise<void>(r => setTimeout(r, 0))
+  }
+}
+
 const adapter: RenderAdapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
 
 beforeEach(() => { document.body.innerHTML = '' })
 
 describe('scanOnce', () => {
-  it('beautifies a generic mermaid code block (no quirk)', async () => {
+  it('Detector A attaches a render affordance (raw by default), not an immediate render', async () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
     await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    // Affordance button present, no mount yet
+    expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    expect(document.querySelector('.bd-mount')).toBeNull()
+  })
+
+  it('clicking the render affordance renders the block (generic mermaid code block)', async () => {
+    document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
+    const localAdapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
+    // Before click: affordance present, no mount
+    expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    expect(document.querySelector('.bd-mount')).toBeNull()
+    // Click triggers render
+    ;(document.querySelector('.bd-render-btn') as HTMLButtonElement).click()
+    await tick()
     expect(document.querySelector('.bd-mount .bd-preview img')).toBeTruthy()
+    expect(document.querySelector('.bd-render-btn')).toBeNull() // button consumed by processHit
   })
 
   it('does nothing on a page with no diagrams', async () => {
     document.body.innerHTML = '<p>hello</p>'
     await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
     expect(document.querySelector('.bd-mount')).toBeNull()
+    expect(document.querySelector('.bd-render-btn')).toBeNull()
   })
 
-  it('Gap B: passes the directive theme override into the adapter', async () => {
+  it('Gap B: clicking the affordance passes the directive theme override into the adapter', async () => {
     document.body.innerHTML = '<pre><code>%% bd:theme=atlas\ngraph TD\nA--&gt;B</code></pre>'
-    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
-    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
-    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ theme: 'atlas' }))
+    const localAdapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
+    // render NOT called yet — only after click
+    expect(localAdapter.render).not.toHaveBeenCalled()
+    ;(document.querySelector('.bd-render-btn') as HTMLButtonElement).click()
+    await tick()
+    expect(localAdapter.render).toHaveBeenCalledWith(expect.objectContaining({ theme: 'atlas' }))
   })
 
-  it('forwards the bg directive through to the adapter render input', async () => {
+  it('clicking the affordance forwards the bg directive through to the adapter render input', async () => {
     document.body.innerHTML = '<pre><code>%% bd:bg=transparent\ngraph TD\nA--&gt;B</code></pre>'
-    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
-    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
-    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ bg: 'transparent' }))
+    const localAdapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
+    expect(localAdapter.render).not.toHaveBeenCalled()
+    ;(document.querySelector('.bd-render-btn') as HTMLButtonElement).click()
+    await tick()
+    expect(localAdapter.render).toHaveBeenCalledWith(expect.objectContaining({ bg: 'transparent' }))
   })
 
-  it('a render rejection does not throw out of scanOnce and does not break the page', async () => {
+  it('a render rejection on affordance click does not throw and leaves no .bd-mount', async () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
-    const adapter = { render: vi.fn().mockRejectedValue(new Error('ctx invalidated')) }
-    await expect(scanOnce({ adapter, defaultTheme: 'classic', quirks: null })).resolves.toBeUndefined()
+    const localAdapter = { render: vi.fn().mockRejectedValue(new Error('ctx invalidated')) }
+    await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
+    // affordance is present before click
+    expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    // click should not throw; page should not break
+    expect(() => (document.querySelector('.bd-render-btn') as HTMLButtonElement).click()).not.toThrow()
+    await tick()
     expect(document.querySelector('.bd-mount')).toBeNull() // native render left intact
+  })
+
+  it('scanOnce is idempotent — second call does not double-attach affordance', async () => {
+    document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    expect(document.querySelectorAll('.bd-render-btn').length).toBe(1)
   })
 
   it('GitHub: replaces the rendered-mermaid section with a mount built from the recovered source', async () => {
