@@ -1,7 +1,7 @@
 # Privacy policy — Beauty Diagram browser extension
 
-**Effective date:** 2026-06-24
-**Hosted at:** https://www.beauty-diagram.com/privacy
+**Effective date:** 2026-06-25
+**Hosted at:** https://www.beauty-diagram.com/privacy/extension
 
 ---
 
@@ -96,5 +96,5 @@ If we make material changes to this policy, we will update the effective date at
 
 If you have questions about this privacy policy, please contact:
 
-**Email:** support@beauty-diagram.com *(confirm or replace)*
+**Email:** service@beauty-diagram.com
 **Website:** https://www.beauty-diagram.com
