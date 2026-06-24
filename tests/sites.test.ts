@@ -50,6 +50,10 @@ describe('isDefaultSite', () => {
     expect(isDefaultSite('www.perplexity.ai')).toBe(true)
   })
 
+  it('returns true for www.beauty-diagram.com', () => {
+    expect(isDefaultSite('www.beauty-diagram.com')).toBe(true)
+  })
+
   it('returns false for example.com', () => {
     expect(isDefaultSite('example.com')).toBe(false)
   })
@@ -76,7 +80,11 @@ describe('DEFAULT_SITE_MATCHES', () => {
     expect(DEFAULT_SITE_MATCHES).toContain('https://*.atlassian.net/*')
   })
 
-  it('has exactly 12 entries', () => {
-    expect(DEFAULT_SITE_MATCHES).toHaveLength(12)
+  it('contains https://www.beauty-diagram.com/*', () => {
+    expect(DEFAULT_SITE_MATCHES).toContain('https://www.beauty-diagram.com/*')
+  })
+
+  it('has exactly 13 entries', () => {
+    expect(DEFAULT_SITE_MATCHES).toHaveLength(13)
   })
 })

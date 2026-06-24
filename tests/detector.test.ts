@@ -79,6 +79,19 @@ describe('detectSourceBlocks', () => {
     expect(hits).toHaveLength(1)
     expect(hits[0].sourceFormat).toBe('plantuml')
   })
+
+  it('detects a rehype-pretty-code mermaid block (data-language attr, line spans, no newlines, %%{init}%% first line)', () => {
+    const root = dom(
+      '<figure data-rehype-pretty-code-figure><div class="group relative"><pre tabindex="0" data-language="mermaid" data-theme="github-dark"><code data-language="mermaid">' +
+      "<span data-line>%%{init: {'theme':'base'}}%%</span>" +
+      '<span data-line>flowchart LR</span>' +
+      '<span data-line>  A --&gt; B --&gt; C</span>' +
+      '</code></pre><button>Copy</button></div></figure>',
+    )
+    const hits = detectSourceBlocks(root)
+    expect(hits).toHaveLength(1)
+    expect(hits[0].sourceFormat).toBe('mermaid')
+  })
 })
 
 describe('detectRenderedDiagrams', () => {

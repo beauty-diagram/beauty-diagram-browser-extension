@@ -68,14 +68,14 @@ export function initPopup(): void {
     const checked = (e.target as HTMLInputElement).checked
     if (!origin) return
     if (!isAutoSite(origin)) {
+      const scriptId = 'bd-' + origin.replace(/[^a-z0-9]+/gi, '-')
       if (checked) {
         const granted = await chrome.permissions.request({ origins: [`${origin}/*`] })
         if (!granted) { (e.target as HTMLInputElement).checked = false; return }
-        const id = `bd-${origin}`
         try {
-          try { await chrome.scripting.unregisterContentScripts({ ids: [id] }) } catch { /* none yet */ }
+          try { await chrome.scripting.unregisterContentScripts({ ids: [scriptId] }) } catch { /* none yet */ }
           await chrome.scripting.registerContentScripts([{
-            id, matches: [`${origin}/*`], js: ['dist/content.js'], css: ['content.css'], runAt: 'document_idle',
+            id: scriptId, matches: [`${origin}/*`], js: ['dist/content.js'], css: ['content.css'], runAt: 'document_idle',
           }])
         } catch (err) {
           console.error('[beauty-diagram] registerContentScripts failed', err)
@@ -83,7 +83,7 @@ export function initPopup(): void {
           return
         }
       } else {
-        try { await chrome.scripting.unregisterContentScripts({ ids: [`bd-${origin}`] }) } catch { /* noop */ }
+        try { await chrome.scripting.unregisterContentScripts({ ids: [scriptId] }) } catch { /* noop */ }
       }
     }
     await setSiteEnabled(origin, checked)

@@ -14,6 +14,7 @@ export const DEFAULT_SITE_HOSTS = [
   'claude.ai',
   'gemini.google.com',
   'www.perplexity.ai',
+  'www.beauty-diagram.com',
 ]
 
 export const DEFAULT_SITE_MATCHES = DEFAULT_SITE_HOSTS.map((h) => `https://${h}/*`)

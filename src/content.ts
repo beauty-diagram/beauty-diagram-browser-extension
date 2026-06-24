@@ -126,6 +126,7 @@ function mintShareViaBackground(
 async function main(): Promise<void> {
   if ((window as any).__bdInit) return
   ;(window as any).__bdInit = true
+  console.log('[beauty-diagram] content script active on', location.host)
   const settings = await loadSettings()
   if (!(await isSiteEnabled(location.origin))) return
   const apiKey = await getApiKey()
