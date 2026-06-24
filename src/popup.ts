@@ -6,7 +6,6 @@ export function isAutoSite(origin: string): boolean {
   return origin === 'https://github.com' || origin === 'https://gitlab.com'
 }
 
-// Only wire DOM/chrome APIs when actually running in the extension popup
 if (
   typeof chrome !== 'undefined' &&
   (chrome as any).tabs &&
@@ -14,94 +13,72 @@ if (
 ) {
   void (async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+    const url = tab?.url
+    const isHttp = !!url && (url.startsWith('http://') || url.startsWith('https://'))
+    const origin = isHttp ? new URL(url).origin : null
 
-    // Disable UI for non-http(s) pages (e.g. chrome://, about:blank)
-    const isHttp = tab?.url?.startsWith('http://') || tab?.url?.startsWith('https://')
-    if (!isHttp || !tab?.url) {
-      ;(document.getElementById('siteEnabled') as HTMLInputElement).disabled = true
-      ;(document.getElementById('replaceRendered') as HTMLInputElement).disabled = true
-      ;(document.getElementById('defaultTheme') as HTMLSelectElement).disabled = true
-      return
-    }
+    const siteEl = document.getElementById('siteEnabled') as HTMLInputElement
+    const replaceEl = document.getElementById('replaceRendered') as HTMLInputElement
+    const themeEl = document.getElementById('defaultTheme') as HTMLSelectElement
 
-    const origin = new URL(tab.url).origin
-
-    // Populate theme select
-    const themeSelect = document.getElementById('defaultTheme') as HTMLSelectElement
+    // Theme options (always)
     for (const t of FALLBACK_THEMES) {
       const opt = document.createElement('option')
       opt.value = t
       opt.textContent = t
-      themeSelect.appendChild(opt)
+      themeEl.appendChild(opt)
     }
 
-    // Load current state
-    const [settings, siteOn] = await Promise.all([loadSettings(), isSiteEnabled(origin)])
-    themeSelect.value = settings.defaultTheme
-    ;(document.getElementById('replaceRendered') as HTMLInputElement).checked = settings.replaceRendered
-    ;(document.getElementById('siteEnabled') as HTMLInputElement).checked = siteOn
+    // Global settings — always available, even on chrome:// / new-tab pages
+    const settings = await loadSettings()
+    themeEl.value = settings.defaultTheme
+    replaceEl.checked = settings.replaceRendered
 
-    // --- siteEnabled toggle ---
-    document.getElementById('siteEnabled')!.addEventListener('change', async (e) => {
-      const checked = (e.target as HTMLInputElement).checked
+    const reloadAndClose = async () => {
+      if (tab?.id) await chrome.tabs.reload(tab.id)
+      window.close()
+    }
 
-      if (!isAutoSite(origin)) {
-        if (checked) {
-          // Opt-in site: request permission then register dynamic content script
-          const granted = await chrome.permissions.request({ origins: [`${origin}/*`] })
-          if (!granted) {
-            // Revert checkbox
-            ;(e.target as HTMLInputElement).checked = false
-            return
+    // Per-site toggle — only meaningful on an http(s) origin
+    if (origin) {
+      siteEl.checked = await isSiteEnabled(origin)
+      siteEl.addEventListener('change', async (e) => {
+        const checked = (e.target as HTMLInputElement).checked
+        if (!isAutoSite(origin)) {
+          if (checked) {
+            const granted = await chrome.permissions.request({ origins: [`${origin}/*`] })
+            if (!granted) { (e.target as HTMLInputElement).checked = false; return }
+            const id = `bd-${origin}`
+            try {
+              try { await chrome.scripting.unregisterContentScripts({ ids: [id] }) } catch {}
+              await chrome.scripting.registerContentScripts([{
+                id, matches: [`${origin}/*`], js: ['dist/content.js'], css: ['content.css'], runAt: 'document_idle',
+              }])
+            } catch (err) {
+              console.error('[beauty-diagram] registerContentScripts failed', err)
+              ;(e.target as HTMLInputElement).checked = false
+              return
+            }
+          } else {
+            try { await chrome.scripting.unregisterContentScripts({ ids: [`bd-${origin}`] }) } catch {}
           }
-          const id = `bd-${origin}`
-          try {
-            try { await chrome.scripting.unregisterContentScripts({ ids: [id] }) } catch {}
-            await chrome.scripting.registerContentScripts([{
-              id,
-              matches: [`${origin}/*`],
-              js: ['dist/content.js'],
-              css: ['content.css'],
-              runAt: 'document_idle',
-            }])
-          } catch (err) {
-            // Registration failed — revert and bail BEFORE setSiteEnabled so we don't
-            // leave a half-state (flag on, but no script registered).
-            console.error('[beauty-diagram] registerContentScripts failed', err)
-            ;(e.target as HTMLInputElement).checked = false
-            return
-          }
-        } else {
-          // Disabling an opt-in site: unregister dynamic script
-          try { await chrome.scripting.unregisterContentScripts({ ids: [`bd-${origin}`] }) } catch {}
         }
-      }
-      // Auto sites (github/gitlab): no register/unregister — manifest handles injection
+        await setSiteEnabled(origin, checked)
+        await reloadAndClose()
+      })
+    } else {
+      siteEl.disabled = true // no http origin (e.g. chrome:// page) — can't scope per-site
+    }
 
-      await setSiteEnabled(origin, checked)
-      await chrome.tabs.reload(tab.id!)
-      window.close()
+    // Global controls — always wired
+    replaceEl.addEventListener('change', async (e) => {
+      await saveSettings({ replaceRendered: (e.target as HTMLInputElement).checked })
+      await reloadAndClose()
     })
-
-    // --- replaceRendered toggle ---
-    document.getElementById('replaceRendered')!.addEventListener('change', async (e) => {
-      const checked = (e.target as HTMLInputElement).checked
-      await saveSettings({ replaceRendered: checked })
-      await chrome.tabs.reload(tab.id!)
-      window.close()
+    themeEl.addEventListener('change', async (e) => {
+      await saveSettings({ defaultTheme: (e.target as HTMLSelectElement).value })
+      await reloadAndClose()
     })
-
-    // --- theme select ---
-    document.getElementById('defaultTheme')!.addEventListener('change', async (e) => {
-      const value = (e.target as HTMLSelectElement).value
-      await saveSettings({ defaultTheme: value })
-      await chrome.tabs.reload(tab.id!)
-      window.close()
-    })
-
-    // --- open options ---
-    document.getElementById('openOptions')!.addEventListener('click', () => {
-      chrome.runtime.openOptionsPage()
-    })
+    document.getElementById('openOptions')!.addEventListener('click', () => chrome.runtime.openOptionsPage())
   })()
 }
