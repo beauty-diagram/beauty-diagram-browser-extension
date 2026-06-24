@@ -3,10 +3,15 @@ import { build, context } from 'esbuild'
 const prod = process.argv.includes('production')
 const shared = {
   bundle: true,
+  platform: 'browser',
   target: 'chrome110',
   sourcemap: !prod,
   minify: prod,
   logLevel: 'info',
+  // shortHashSync in hash.ts uses node:crypto (VS Code only); mark as external
+  // so it doesn't prevent the browser bundle from building. shortHashSync is
+  // never called in the extension — only the web-crypto shortHash() is used.
+  external: ['node:crypto'],
 }
 // Content scripts + options page load as classic scripts → IIFE.
 // The MV3 background is declared "type": "module" in manifest.json → ESM.

@@ -1,0 +1,7 @@
+.bd-mount { margin: 0.5rem 0; }
+.bd-preview img, .bd-preview svg { max-width: 100%; height: auto; display: block; }
+.bd-source pre { overflow: auto; padding: 0.75rem; border-radius: 6px; background: rgba(127,127,127,0.08); }
+.bd-source code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
+.bd-bar { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem; font-size: 12px; opacity: 0.75; }
+.bd-bar button, .bd-bar a { font: inherit; color: inherit; background: none; border: 1px solid currentColor; border-radius: 4px; padding: 1px 6px; cursor: pointer; text-decoration: none; }
+.bd-bar:hover { opacity: 1; }
