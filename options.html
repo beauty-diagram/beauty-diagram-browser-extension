@@ -1,20 +1,155 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Beauty Diagram — Options</title>
-<style>body{font-family:system-ui;max-width:520px;margin:2rem auto;padding:0 1rem}label{display:block;margin:1rem 0 .25rem}input,select{width:100%;padding:.4rem}.verify-row{display:flex;gap:.5rem;align-items:center;margin-top:.5rem}.verify-row button{flex-shrink:0}#verifyStatus{font-size:.85em;color:#555}</style>
-</head><body>
-<h1>Beauty Diagram</h1>
-<label for="defaultTheme">Default theme</label><select id="defaultTheme"></select>
-<label for="apiBase">API base</label><input id="apiBase" />
-<label><input id="replaceRendered" type="checkbox" /> Replace already-rendered diagrams (Detector B)</label>
-<label for="defaultImageWidth">Diagram max-width (full / 800px / 640px / 480px / any CSS length)</label><input id="defaultImageWidth" />
-<label><input id="handlePlantuml" type="checkbox" /> Handle PlantUML diagrams</label>
-<label for="apiKey">API key (stored locally — never synced)</label>
-<input id="apiKey" type="password" placeholder="sk-…" />
-<div class="verify-row">
-  <button id="verifyKey">Verify API key</button>
-  <span id="verifyStatus"></span>
+<html lang="en"><head><meta charset="utf-8">
+<title>Beauty Diagram — Settings</title>
+<style>
+  :root {
+    --violet: #7c3aed;
+    --violet-2: #8b5cf6;
+    --violet-wash: #f5f3ff;
+    --violet-text: #6d28d9;
+    --ink: #171717;
+    --muted: #6b7280;
+    --line: rgba(17,17,17,.08);
+    --surface: #ffffff;
+    --bg: #faf9fc;
+    --seg-bg: #f3f4f6;
+    --track-off: #d4d4d8;
+    --hint: #9097a1;
+    --shadow-card: 0 0 0 1px rgba(17,17,17,.05), 0 6px 24px -16px rgba(20,12,40,.4);
+    --shadow-knob: 0 1px 2px rgba(17,17,17,.25);
+    --logo-ink: #171717; --logo-violet: #7c3aed; --logo-dot: #ffffff;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --violet: #a78bfa; --violet-2: #8b5cf6;
+      --violet-wash: rgba(139,92,246,.16); --violet-text: #c4b5fd;
+      --ink: #f4f4f5; --muted: #9b9ba4; --line: rgba(255,255,255,.10);
+      --surface: #26262b; --bg: #1a1a1d; --seg-bg: rgba(255,255,255,.06);
+      --track-off: rgba(255,255,255,.20); --hint: #7c7c86;
+      --shadow-card: 0 0 0 1px rgba(255,255,255,.07), 0 6px 24px -16px rgba(0,0,0,.6);
+      --shadow-knob: 0 1px 2px rgba(0,0,0,.5);
+      --logo-ink: #e4e4e7; --logo-violet: #a78bfa; --logo-dot: #1a1a1d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--font); color: var(--ink); background: var(--bg);
+    -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.5;
+    padding: 40px 20px 64px;
+  }
+  .page { max-width: 540px; margin: 0 auto; animation: rise .25s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  header { display: flex; align-items: center; gap: 11px; margin-bottom: 26px; }
+  header svg.mark { width: 30px; height: 30px; flex: none; }
+  header .titles { display: flex; flex-direction: column; gap: 1px; }
+  header .name { font-weight: 600; font-size: 18px; letter-spacing: -.015em; }
+  header .sub { font-size: 12.5px; color: var(--muted); }
+
+  .card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-card); padding: 6px 22px 20px; margin-bottom: 18px; }
+  .seclabel { font-size: 10.5px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); padding: 16px 0 4px; }
+
+  .item { padding: 14px 0; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: 0; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0; cursor: pointer; }
+  .row .txt { display: flex; flex-direction: column; gap: 2px; }
+  .row .t1 { font-size: 14px; font-weight: 500; }
+  .row .t2 { font-size: 12px; color: var(--muted); }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .flabel { font-size: 13px; font-weight: 500; }
+  .hint { font-size: 12px; color: var(--hint); }
+  .inp { width: 100%; font: inherit; font-size: 13.5px; color: var(--ink); background: var(--bg); border: 0; box-shadow: 0 0 0 1px var(--line); border-radius: 10px; padding: 9px 12px; transition: box-shadow .15s ease; }
+  .inp:hover { box-shadow: 0 0 0 1px rgba(124,58,237,.3); }
+  .inp:focus-visible { outline: 0; box-shadow: 0 0 0 1px var(--violet), 0 0 0 3px rgba(124,58,237,.18); }
+  .selectwrap { position: relative; }
+  select.inp { -webkit-appearance: none; appearance: none; padding-right: 32px; cursor: pointer; }
+  .chev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); }
+
+  .switch { position: relative; flex: none; width: 36px; height: 21px; }
+  .switch input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .track { position: absolute; inset: 0; border-radius: 999px; background: var(--track-off); transition: background .18s ease; }
+  .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 17px; height: 17px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-knob); transition: transform .2s cubic-bezier(.3,.85,.3,1); }
+  .switch input:checked + .track { background: var(--violet); }
+  .switch input:checked + .track::after { transform: translateX(15px); }
+  .switch input:focus-visible + .track { box-shadow: 0 0 0 3px rgba(124,58,237,.28); }
+
+  .btn { font: inherit; font-size: 13.5px; font-weight: 600; border: 0; border-radius: 999px; padding: 10px 20px; cursor: pointer; transition: filter .15s ease, background .15s ease, transform .1s ease; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: linear-gradient(135deg, var(--violet), var(--violet-2)); color: #fff; box-shadow: 0 10px 24px -14px rgba(124,58,237,.6); }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-secondary { background: var(--violet-wash); color: var(--violet-text); padding: 8px 15px; font-size: 12.5px; }
+  .btn-secondary:hover { filter: brightness(.98); }
+
+  .verify { display: flex; align-items: center; gap: 11px; margin-top: 11px; }
+  #verifyStatus { font-size: 12.5px; color: var(--muted); }
+  .savebar { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
+  #status { font-size: 13px; color: var(--violet-text); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M20 20 L44 44" stroke="var(--logo-violet)" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <rect x="8" y="8" width="22" height="22" rx="7" fill="var(--logo-ink)"/>
+      <rect x="34" y="34" width="22" height="22" rx="7" fill="none" stroke="var(--logo-violet)" stroke-width="3"/>
+      <circle cx="16" cy="16" r="3" fill="var(--logo-dot)"/>
+    </svg>
+    <div class="titles"><span class="name">Beauty Diagram</span><span class="sub">Extension settings</span></div>
+  </header>
+
+  <div class="card">
+    <div class="seclabel">Rendering</div>
+    <div class="item field">
+      <label class="flabel" for="defaultTheme">Default theme</label>
+      <div class="selectwrap">
+        <select id="defaultTheme" class="inp"></select>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="item field">
+      <label class="flabel" for="defaultImageWidth">Diagram max-width</label>
+      <input id="defaultImageWidth" class="inp" placeholder="full" />
+      <span class="hint">full / 800px / 640px / 480px / any CSS length</span>
+    </div>
+    <label class="item row">
+      <span class="txt"><span class="t1">Replace rendered diagrams</span><span class="t2">Swap GitHub / GitLab native mermaid renders</span></span>
+      <span class="switch"><input type="checkbox" id="replaceRendered"><span class="track"></span></span>
+    </label>
+    <label class="item row">
+      <span class="txt"><span class="t1">Handle PlantUML</span><span class="t2">Also beautify PlantUML code blocks</span></span>
+      <span class="switch"><input type="checkbox" id="handlePlantuml"><span class="track"></span></span>
+    </label>
+  </div>
+
+  <div class="card">
+    <div class="seclabel">Watermark-free (Pro)</div>
+    <div class="item field">
+      <label class="flabel" for="apiKey">API key</label>
+      <input id="apiKey" class="inp" type="password" placeholder="sk-…" />
+      <span class="hint">Stored locally, never synced. A Pro key removes the watermark.</span>
+      <div class="verify"><button id="verifyKey" class="btn btn-secondary" type="button">Verify key</button><span id="verifyStatus"></span></div>
+    </div>
+    <label class="item row">
+      <span class="txt"><span class="t1">Watermark-free renders</span><span class="t2">Requires a Pro API key above</span></span>
+      <span class="switch"><input type="checkbox" id="watermarkFree"><span class="track"></span></span>
+    </label>
+  </div>
+
+  <div class="card">
+    <div class="seclabel">Advanced</div>
+    <div class="item field">
+      <label class="flabel" for="apiBase">API base</label>
+      <input id="apiBase" class="inp" />
+      <span class="hint">For self-hosting or development. Leave as the default otherwise.</span>
+    </div>
+  </div>
+
+  <div class="savebar"><button id="save" class="btn btn-primary" type="button">Save</button><span id="status"></span></div>
 </div>
-<label><input id="watermarkFree" type="checkbox" /> Watermark-free renders (requires Pro API key)</label>
-<p><button id="save">Save</button> <span id="status"></span></p>
 <script src="dist/options.js"></script>
 </body></html>
