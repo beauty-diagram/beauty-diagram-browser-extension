@@ -48,6 +48,13 @@ describe('detectSourceBlocks', () => {
     expect(hits[0].source).not.toContain('bd:theme')
     expect(hits[0].source.trim().startsWith('graph TD')).toBe(true)
   })
+
+  it('captures the bg directive into bgOverride', () => {
+    const root = dom('<pre><code>%% bd:bg=dark\ngraph TD\nA--&gt;B</code></pre>')
+    const hits = detectSourceBlocks(root)
+    expect(hits).toHaveLength(1)
+    expect(hits[0].bgOverride).toBe('dark')
+  })
 })
 
 describe('detectRenderedDiagrams', () => {

@@ -30,6 +30,13 @@ describe('scanOnce', () => {
     expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ theme: 'atlas' }))
   })
 
+  it('forwards the bg directive through to the adapter render input', async () => {
+    document.body.innerHTML = '<pre><code>%% bd:bg=transparent\ngraph TD\nA--&gt;B</code></pre>'
+    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ bg: 'transparent' }))
+  })
+
   it('a render rejection does not throw out of scanOnce and does not break the page', async () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
     const adapter = { render: vi.fn().mockRejectedValue(new Error('ctx invalidated')) }

@@ -6,6 +6,7 @@ export type SourceHit = {
   sourceFormat: SourceFormat
   node: Element
   themeOverride?: string
+  bgOverride?: string
 }
 
 const MERMAID_HEAD =
@@ -58,9 +59,16 @@ export function detectSourceBlocks(root: ParentNode): SourceHit[] {
     if (isExcluded(overrides)) continue
     // mount target is the enclosing <pre> when present, else the <code>
     const node = code.closest('pre') ?? code
-    // Gap B: propagate theme directive to SourceHit
+    // Gap B: propagate theme + bg directives to SourceHit
     const themeOverride: string | undefined = overrides.theme
-    hits.push({ source, sourceFormat: fmt, node, ...(themeOverride !== undefined ? { themeOverride } : {}) })
+    const bgOverride: string | undefined = overrides.bg
+    hits.push({
+      source,
+      sourceFormat: fmt,
+      node,
+      ...(themeOverride !== undefined ? { themeOverride } : {}),
+      ...(bgOverride !== undefined ? { bgOverride } : {}),
+    })
   }
   return hits
 }

@@ -83,6 +83,7 @@ export async function processHit(hit: SourceHit, deps: SwapDeps): Promise<void> 
     source: hit.source,
     sourceFormat: hit.sourceFormat,
     theme,
+    bg: hit.bgOverride,
     renderMode: deps.renderMode,
   }
   const result = await deps.adapter.render(input)
