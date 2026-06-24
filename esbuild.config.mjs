@@ -19,6 +19,7 @@ const entries = [
   { in: 'src/content.ts', out: 'dist/content.js', format: 'iife' },
   { in: 'src/background.ts', out: 'dist/background.js', format: 'esm' },
   { in: 'src/options.ts', out: 'dist/options.js', format: 'iife' },
+  { in: 'src/popup.ts', out: 'dist/popup.js', format: 'iife' },
 ]
 
 if (prod) {

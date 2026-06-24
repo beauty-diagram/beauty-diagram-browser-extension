@@ -2,7 +2,7 @@ import { detectSourceBlocks, detectRenderedDiagrams } from './detector'
 import { processHit } from './swap'
 import { ApiRenderAdapter, type RenderAdapter } from './render-adapter'
 import { startObserver } from './observer'
-import { loadSettings } from './settings'
+import { loadSettings, isSiteEnabled } from './settings'
 import { matchQuirks, type SiteQuirks } from './quirks'
 import type { FetchSvgRequest, FetchSvgResponse } from './messages'
 import { DEFAULT_API_BASE } from './constants'
@@ -59,7 +59,10 @@ function fetchViaBackground(url: string): Promise<FetchSvgResponse> {
 }
 
 async function main(): Promise<void> {
+  if ((window as any).__bdInit) return
+  ;(window as any).__bdInit = true
   const settings = await loadSettings()
+  if (!(await isSiteEnabled(location.origin))) return
   const quirks = matchQuirks(location.hostname)
   const adapter = new ApiRenderAdapter({ apiBase: settings.apiBase ?? DEFAULT_API_BASE, fetchViaBackground })
   const ctx: ScanContext = {

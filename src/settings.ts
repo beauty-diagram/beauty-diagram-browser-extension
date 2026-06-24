@@ -22,3 +22,16 @@ export function loadSettings(): Promise<Settings> {
 export function saveSettings(patch: Partial<Settings>): Promise<void> {
   return new Promise((resolve) => chrome.storage.sync.set(patch, () => resolve()))
 }
+
+export function isSiteEnabled(origin: string): Promise<boolean> {
+  return new Promise((resolve) =>
+    chrome.storage.local.get([`bd:site:${origin}`], (r) => {
+      const v = r[`bd:site:${origin}`]
+      resolve(v === undefined ? true : v === true)
+    }))
+}
+
+export function setSiteEnabled(origin: string, enabled: boolean): Promise<void> {
+  return new Promise((resolve) =>
+    chrome.storage.local.set({ [`bd:site:${origin}`]: enabled }, () => resolve()))
+}

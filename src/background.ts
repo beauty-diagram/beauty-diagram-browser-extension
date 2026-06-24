@@ -35,17 +35,3 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   })
 }
 
-export function contentScriptForOrigin(tabId: number): chrome.scripting.ScriptInjection<[], void> {
-  return { target: { tabId }, files: ['dist/content.js'] }
-}
-
-if (typeof chrome !== 'undefined' && chrome.action?.onClicked) {
-  chrome.action.onClicked.addListener(async (tab) => {
-    if (!tab.id || !tab.url) return
-    const origin = new URL(tab.url).origin + '/*'
-    const granted = await chrome.permissions.request({ origins: [origin] })
-    if (!granted) return
-    await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['content.css'] })
-    await chrome.scripting.executeScript(contentScriptForOrigin(tab.id))
-  })
-}
