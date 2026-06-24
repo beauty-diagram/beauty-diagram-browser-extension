@@ -36,7 +36,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 }
 
 export function contentScriptForOrigin(tabId: number): chrome.scripting.ScriptInjection<[], void> {
-  return { target: { tabId }, files: ['dist/content.js'] } as chrome.scripting.ScriptInjection<[], void>
+  return { target: { tabId }, files: ['dist/content.js'] }
 }
 
 if (typeof chrome !== 'undefined' && chrome.action?.onClicked) {

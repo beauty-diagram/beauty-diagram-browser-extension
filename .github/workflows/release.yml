@@ -1,6 +1,8 @@
 name: Release
 on:
-  push: { tags: ['*'] }
+  # Version-shaped tags only (no `v` prefix — matches `npm version`'s 0.1.0 tags,
+  # consistent with the sibling plugin repos). Excludes junk tags like `tmp-test`.
+  push: { tags: ['[0-9]*.[0-9]*.[0-9]*'] }
 jobs:
   release:
     runs-on: ubuntu-latest
