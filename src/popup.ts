@@ -68,14 +68,23 @@ export function initPopup(): void {
     const checked = (e.target as HTMLInputElement).checked
     if (!origin) return
     if (!isAutoSite(origin)) {
+      const u = new URL(origin)
+      const matchPattern = `${u.protocol}//${u.hostname}/*`
       const scriptId = 'bd-' + origin.replace(/[^a-z0-9]+/gi, '-')
       if (checked) {
-        const granted = await chrome.permissions.request({ origins: [`${origin}/*`] })
+        let granted = false
+        try {
+          granted = await chrome.permissions.request({ origins: [matchPattern] })
+        } catch (err) {
+          console.error('[beauty-diagram] permission request failed', err)
+          ;(e.target as HTMLInputElement).checked = false
+          return
+        }
         if (!granted) { (e.target as HTMLInputElement).checked = false; return }
         try {
           try { await chrome.scripting.unregisterContentScripts({ ids: [scriptId] }) } catch { /* none yet */ }
           await chrome.scripting.registerContentScripts([{
-            id: scriptId, matches: [`${origin}/*`], js: ['dist/content.js'], css: ['content.css'], runAt: 'document_idle',
+            id: scriptId, matches: [matchPattern], js: ['dist/content.js'], css: ['content.css'], runAt: 'document_idle',
           }])
         } catch (err) {
           console.error('[beauty-diagram] registerContentScripts failed', err)

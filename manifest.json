@@ -9,7 +9,7 @@
   "options_page": "options.html",
   "permissions": ["storage", "scripting", "activeTab"],
   "host_permissions": ["https://api.beauty-diagram.com/*"],
-  "optional_host_permissions": ["https://*.atlassian.net/*", "https://*/*"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
   "content_scripts": [
     {
       "matches": ["https://github.com/*","https://gitlab.com/*","https://*.atlassian.net/*","https://dev.to/*","https://stackoverflow.com/*","https://*.stackexchange.com/*","https://linear.app/*","https://*.hashnode.dev/*","https://chatgpt.com/*","https://claude.ai/*","https://gemini.google.com/*","https://www.perplexity.ai/*","https://www.beauty-diagram.com/*"],

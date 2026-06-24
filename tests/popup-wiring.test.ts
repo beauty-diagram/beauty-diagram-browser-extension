@@ -62,4 +62,39 @@ describe('popup wiring robustness', () => {
     expect(document.querySelectorAll('#defaultTheme option').length).toBeGreaterThan(0)
     expect(document.getElementById('siteHost')!.textContent).toContain('github.com')
   })
+
+  it('permissions.request rejection on a non-built-in site: handler does not throw, checkbox reverts to unchecked', async () => {
+    // Override chrome with a non-built-in tab URL and a rejecting permissions.request
+    ;(globalThis as unknown as { chrome: unknown }).chrome = {
+      runtime: { openOptionsPage: vi.fn(), lastError: undefined },
+      tabs: {
+        query: vi.fn(() => Promise.resolve([{ id: 1, url: 'https://example.com/x' }])),
+        reload: vi.fn(() => Promise.resolve()),
+      },
+      storage: {
+        sync: { get: (d: unknown, cb: (d: unknown) => void) => cb(d), set: vi.fn((_p: unknown, cb?: () => void) => cb && cb()) },
+        local: { get: (_k: unknown, cb: (r: unknown) => void) => cb({}), set: (_p: unknown, cb?: () => void) => cb && cb() },
+      },
+      permissions: {
+        request: vi.fn(() => Promise.reject(new Error('Only permissions specified in the manifest may be requested'))),
+        contains: (_q: unknown, cb: (g: boolean) => void) => cb(false),
+      },
+      scripting: {
+        registerContentScripts: vi.fn(() => Promise.resolve()),
+        unregisterContentScripts: vi.fn(() => Promise.resolve()),
+      },
+    }
+
+    initPopup()
+    await flush(); await flush() // let async state-loading complete (tab url → example.com)
+
+    const siteEl = document.getElementById('siteEnabled') as HTMLInputElement
+    // Simulate user enabling the toggle
+    siteEl.checked = true
+    siteEl.dispatchEvent(new Event('change'))
+    await flush(); await flush() // drain the async handler
+
+    // Handler must NOT throw (test completes), and checkbox must revert to unchecked
+    expect(siteEl.checked).toBe(false)
+  })
 })
