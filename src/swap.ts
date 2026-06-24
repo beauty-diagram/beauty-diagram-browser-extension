@@ -60,13 +60,14 @@ function removeAdjacentMarker(afterNode: Node): void {
       }
       cur = cur.nextSibling
     }
-    // Only remove if we found a proper closing comment, or remove up to what we collected.
-    // The spec says remove up to and including the first closing comment.
-    // If no closing comment found, still remove what we have (defensive).
-    for (const node of toRemove) {
-      parent.removeChild(node)
+    // Only remove when both opening AND closing comments were found.
+    // If the closing comment is absent (malformed/truncated DOM), do nothing —
+    // silently destroying unrelated trailing content is worse than leaving the marker.
+    if (foundClose) {
+      for (const node of toRemove) {
+        parent.removeChild(node)
+      }
     }
-    void foundClose // suppress unused warning; removal proceeds regardless
   }
 }
 

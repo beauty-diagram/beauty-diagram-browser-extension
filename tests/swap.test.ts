@@ -49,6 +49,20 @@ describe('processHit', () => {
     expect(host.querySelector('.bd-preview svg#z')).toBeTruthy()
   })
 
+  it('Gap A: leaves DOM untouched when bd:inline-img marker has no closing comment (malformed)', async () => {
+    const host = document.createElement('div')
+    host.innerHTML =
+      '<pre><code>graph TD\nA--&gt;B</code></pre>' +
+      '<!-- bd:inline-img hash=abc12345 -->' +
+      '<p><img src="https://api.beauty-diagram.com/v1/beautify.svg?source=zz"></p>' +
+      '<span class="trailing">keep me</span>'   // NOTE: no closing /bd:inline-img comment
+    const node = host.querySelector('pre')!
+    await processHit({ source: 'graph TD; A-->B', sourceFormat: 'mermaid', node }, deps)
+    expect(host.querySelector('.bd-mount')).toBeTruthy()        // diagram still swapped
+    expect(host.querySelector('span.trailing')).toBeTruthy()    // unrelated trailing content preserved
+    expect(host.querySelector('span.trailing')!.textContent).toBe('keep me')
+  })
+
   it('Gap A: removes an adjacent bd:inline-img marker block (no double image)', async () => {
     const host = document.createElement('div')
     host.innerHTML =
