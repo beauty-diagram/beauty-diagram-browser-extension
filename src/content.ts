@@ -34,6 +34,8 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
   for (const hit of detectSourceBlocks(document.body, { handlePlantuml: ctx.handlePlantuml })) {
     const node = hit.node as HTMLElement
     if (node.closest('.bd-mount') || node.dataset.bdAffordance) continue
+    const ceSelector = '[contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]'
+    if (node.isContentEditable || node.closest(ceSelector) || node.querySelector(ceSelector)) continue
     attachRenderAffordance(hit, { ...base, theme: hit.themeOverride })
   }
   // B: already-rendered diagrams (GitHub etc.) — needs quirk.recoverSource for the source
@@ -67,23 +69,25 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
 function attachRenderAffordance(hit: SourceHit, deps: SwapDeps): void {
   const node = hit.node as HTMLElement
   node.dataset.bdAffordance = '1'
-  // Make the button positionable without disturbing the code text.
-  if (getComputedStyle(node).position === 'static') node.style.position = 'relative'
+  const bar = document.createElement('div')
+  bar.className = 'bd-render-bar'
   const btn = document.createElement('button')
   btn.type = 'button'
   btn.className = 'bd-render-btn'
-  btn.textContent = '◇ Render'
-  btn.setAttribute('aria-label', 'Render with Beauty Diagram')
+  btn.textContent = '◇ Render with Beauty Diagram'
+  btn.setAttribute('aria-label', 'Render this diagram with Beauty Diagram')
   btn.addEventListener('click', async (e) => {
     e.preventDefault()
     e.stopPropagation()
     try {
-      await processHit(hit, deps) // replaces the code block (incl. this button) with the rendered mount
+      await processHit(hit, deps) // replaces the code block (hit.node) with the rendered mount
+      bar.remove()
     } catch (err) {
       console.debug('[beauty-diagram] render failed; leaving code block', err)
     }
   })
-  node.appendChild(btn)
+  bar.appendChild(btn)
+  node.insertAdjacentElement('afterend', bar)
 }
 
 function fetchViaBackground(url: string): Promise<FetchSvgResponse> {

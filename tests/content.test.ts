@@ -25,8 +25,15 @@ describe('scanOnce', () => {
   it('Detector A attaches a render affordance (raw by default), not an immediate render', async () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
     await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
-    // Affordance button present, no mount yet
-    expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    // Affordance bar+button is a sibling AFTER the code block, no mount yet
+    const pre = document.querySelector('pre')!
+    const bar = document.querySelector('.bd-render-bar')
+    const btn = document.querySelector('.bd-render-btn')
+    expect(btn).toBeTruthy()
+    expect(bar).toBeTruthy()
+    // bar is immediately after the <pre>, not inside it
+    expect(pre.nextElementSibling).toBe(bar)
+    expect(pre.contains(btn)).toBe(false)
     expect(document.querySelector('.bd-mount')).toBeNull()
   })
 
@@ -34,14 +41,17 @@ describe('scanOnce', () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
     const localAdapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
     await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
-    // Before click: affordance present, no mount
+    // Before click: affordance bar present, no mount
     expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    expect(document.querySelector('.bd-render-bar')).toBeTruthy()
     expect(document.querySelector('.bd-mount')).toBeNull()
     // Click triggers render
     ;(document.querySelector('.bd-render-btn') as HTMLButtonElement).click()
     await tick()
     expect(document.querySelector('.bd-mount .bd-preview img')).toBeTruthy()
-    expect(document.querySelector('.bd-render-btn')).toBeNull() // button consumed by processHit
+    // bar removed after successful render
+    expect(document.querySelector('.bd-render-bar')).toBeNull()
+    expect(document.querySelector('.bd-render-btn')).toBeNull()
   })
 
   it('does nothing on a page with no diagrams', async () => {
@@ -76,12 +86,30 @@ describe('scanOnce', () => {
     document.body.innerHTML = '<pre><code>graph TD\nA--&gt;B</code></pre>'
     const localAdapter = { render: vi.fn().mockRejectedValue(new Error('ctx invalidated')) }
     await scanOnce({ adapter: localAdapter, defaultTheme: 'classic', quirks: null })
-    // affordance is present before click
+    // affordance bar is present before click
     expect(document.querySelector('.bd-render-btn')).toBeTruthy()
+    expect(document.querySelector('.bd-render-bar')).toBeTruthy()
     // click should not throw; page should not break
     expect(() => (document.querySelector('.bd-render-btn') as HTMLButtonElement).click()).not.toThrow()
     await tick()
     expect(document.querySelector('.bd-mount')).toBeNull() // native render left intact
+    // bar remains (render failed, so we leave the affordance in place)
+    expect(document.querySelector('.bd-render-bar')).toBeTruthy()
+  })
+
+  it('skips contenteditable code blocks — no affordance attached', async () => {
+    // Simulate a mermaid.js playground / live editor: <code contenteditable>
+    document.body.innerHTML = '<pre><code contenteditable="plaintext-only">flowchart TD\nA--&gt;B</code></pre>'
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    expect(document.querySelector('.bd-render-btn')).toBeNull()
+    expect(document.querySelector('.bd-render-bar')).toBeNull()
+  })
+
+  it('skips code block whose ancestor is contenteditable', async () => {
+    document.body.innerHTML = '<div contenteditable="true"><pre><code>flowchart TD\nA--&gt;B</code></pre></div>'
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: null })
+    expect(document.querySelector('.bd-render-btn')).toBeNull()
+    expect(document.querySelector('.bd-render-bar')).toBeNull()
   })
 
   it('scanOnce is idempotent — second call does not double-attach affordance', async () => {
