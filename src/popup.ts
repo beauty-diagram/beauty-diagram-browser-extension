@@ -1,9 +1,13 @@
 import { FALLBACK_THEMES } from './constants'
 import { loadSettings, saveSettings, isSiteEnabled, setSiteEnabled } from './settings'
+import { isDefaultSite } from './sites'
 
 /** Pure helper — testable in jsdom without chrome */
 export function isAutoSite(origin: string): boolean {
-  return origin === 'https://github.com' || origin === 'https://gitlab.com'
+  try {
+    const u = new URL(origin)
+    return u.protocol === 'https:' && isDefaultSite(u.host)
+  } catch { return false }
 }
 
 /**

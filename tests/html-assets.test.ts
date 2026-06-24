@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { DEFAULT_SITE_MATCHES } from '../src/sites'
 
 const root = resolve(__dirname, '..')
 const read = (p: string) => readFileSync(resolve(root, p), 'utf8')
@@ -23,5 +24,10 @@ describe('html ↔ script wiring', () => {
     expect(m.options_page).toBe('options.html')
     expect(m.background.service_worker).toBe('dist/background.js')
     expect(m.content_scripts[0].js).toContain('dist/content.js')
+  })
+
+  it('manifest content_scripts[0].matches mirrors DEFAULT_SITE_MATCHES (drift guard)', () => {
+    const m = JSON.parse(read('manifest.json'))
+    expect(m.content_scripts[0].matches).toEqual(DEFAULT_SITE_MATCHES)
   })
 })
