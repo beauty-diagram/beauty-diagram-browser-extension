@@ -1,6 +1,6 @@
 // tests/settings.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { loadSettings, saveSettings, DEFAULT_SETTINGS, isSiteEnabled, setSiteEnabled } from '../src/settings'
+import { loadSettings, saveSettings, DEFAULT_SETTINGS, isSiteEnabled, setSiteEnabled, getApiKey, setApiKey } from '../src/settings'
 
 beforeEach(() => {
   ;(globalThis as any).chrome = {
@@ -74,5 +74,41 @@ describe('setSiteEnabled', () => {
       { 'bd:site:https://example.com': true },
       expect.any(Function),
     )
+  })
+})
+
+describe('getApiKey', () => {
+  it('returns empty string when no key is stored (default)', async () => {
+    const key = await getApiKey()
+    expect(key).toBe('')
+  })
+
+  it('returns stored key from chrome.storage.local', async () => {
+    ;(chrome.storage.local.get as any) = vi.fn((_keys: any, cb: any) =>
+      cb({ 'bd:apiKey': 'sk-test-abc123' }))
+    const key = await getApiKey()
+    expect(key).toBe('sk-test-abc123')
+  })
+})
+
+describe('setApiKey', () => {
+  it('writes the key to chrome.storage.local (not sync)', async () => {
+    await setApiKey('sk-test-xyz')
+    expect(chrome.storage.local.set).toHaveBeenCalledWith(
+      { 'bd:apiKey': 'sk-test-xyz' },
+      expect.any(Function),
+    )
+    expect(chrome.storage.sync.set).not.toHaveBeenCalled()
+  })
+})
+
+describe('watermarkFree default', () => {
+  it('DEFAULT_SETTINGS has watermarkFree = false', () => {
+    expect(DEFAULT_SETTINGS.watermarkFree).toBe(false)
+  })
+
+  it('loadSettings returns watermarkFree false when not stored', async () => {
+    const s = await loadSettings()
+    expect(s.watermarkFree).toBe(false)
   })
 })

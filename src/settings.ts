@@ -7,6 +7,7 @@ export interface Settings {
   replaceRendered: boolean
   defaultImageWidth: string
   handlePlantuml: boolean
+  watermarkFree: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -15,6 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
   replaceRendered: true,
   defaultImageWidth: 'full',
   handlePlantuml: true,
+  watermarkFree: false,
 }
 
 export function loadSettings(): Promise<Settings> {
@@ -38,4 +40,15 @@ export function isSiteEnabled(origin: string): Promise<boolean> {
 export function setSiteEnabled(origin: string, enabled: boolean): Promise<void> {
   return new Promise((resolve) =>
     chrome.storage.local.set({ [`bd:site:${origin}`]: enabled }, () => resolve()))
+}
+
+/** API key is stored ONLY in local storage (never sync) to avoid syncing secrets across machines. */
+export function getApiKey(): Promise<string> {
+  return new Promise((resolve) =>
+    chrome.storage.local.get(['bd:apiKey'], (r) => resolve((r['bd:apiKey'] as string) ?? '')))
+}
+
+export function setApiKey(key: string): Promise<void> {
+  return new Promise((resolve) =>
+    chrome.storage.local.set({ 'bd:apiKey': key }, () => resolve()))
 }
