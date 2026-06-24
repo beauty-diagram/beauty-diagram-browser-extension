@@ -1,13 +1,60 @@
-// src/toggle.ts (temporary minimal stub — replaced fully in Task 1.5)
+import { editorLink } from './editor-link'
+import type { SourceFormat } from './types'
+
 export interface BarOptions {
   mount: HTMLElement
   source: string
-  sourceFormat: 'mermaid' | 'plantuml'
+  sourceFormat: SourceFormat
   theme: string
   editorWebBase?: string
 }
-export function buildBar(_opts: BarOptions): HTMLElement {
+
+function button(cls: string, label: string): HTMLButtonElement {
+  const b = document.createElement('button')
+  b.type = 'button'
+  b.className = cls
+  b.textContent = label
+  return b
+}
+
+export function buildBar(opts: BarOptions): HTMLElement {
   const bar = document.createElement('div')
   bar.className = 'bd-bar'
+
+  const toggle = button('bd-toggle', '</> Source')
+  toggle.addEventListener('click', () => {
+    const preview = opts.mount.querySelector('.bd-preview') as HTMLElement | null
+    const source = opts.mount.querySelector('.bd-source') as HTMLElement | null
+    if (!preview || !source) return
+    const showingSource = !source.hasAttribute('hidden')
+    if (showingSource) {
+      source.setAttribute('hidden', '')
+      preview.removeAttribute('hidden')
+      toggle.textContent = '</> Source'
+    } else {
+      preview.setAttribute('hidden', '')
+      source.removeAttribute('hidden')
+      toggle.textContent = '🖼 Preview'
+    }
+  })
+
+  const copy = button('bd-copy', '⧉ Copy')
+  copy.addEventListener('click', () => {
+    void navigator.clipboard?.writeText(opts.source)
+  })
+
+  const edit = document.createElement('a')
+  edit.className = 'bd-edit'
+  edit.textContent = '↗ Open in editor'
+  edit.target = '_blank'
+  edit.rel = 'noopener noreferrer'
+  edit.href = editorLink({
+    source: opts.source,
+    sourceFormat: opts.sourceFormat,
+    theme: opts.theme,
+    webBase: opts.editorWebBase,
+  })
+
+  bar.append(toggle, copy, edit)
   return bar
 }
