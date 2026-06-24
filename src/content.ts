@@ -4,6 +4,7 @@ import { ApiRenderAdapter, type RenderAdapter } from './render-adapter'
 import { startObserver } from './observer'
 import { loadSettings, isSiteEnabled } from './settings'
 import { matchQuirks, type SiteQuirks } from './quirks'
+import { parseDirective, isExcluded } from './directives'
 import type { FetchSvgRequest, FetchSvgResponse } from './messages'
 import { DEFAULT_API_BASE } from './constants'
 
@@ -13,13 +14,21 @@ export interface ScanContext {
   quirks: SiteQuirks | null
   editorWebBase?: string
   replaceRendered?: boolean
+  imageWidth?: string
+  handlePlantuml?: boolean
 }
 
 export async function scanOnce(ctx: ScanContext): Promise<void> {
   const renderMode = ctx.quirks?.renderMode
-  const base = { adapter: ctx.adapter, defaultTheme: ctx.defaultTheme, editorWebBase: ctx.editorWebBase, renderMode }
+  const base = {
+    adapter: ctx.adapter,
+    defaultTheme: ctx.defaultTheme,
+    editorWebBase: ctx.editorWebBase,
+    renderMode,
+    imageWidth: ctx.imageWidth,
+  }
   // A: unrendered source blocks (works everywhere; only path for Jira/Confluence)
-  for (const hit of detectSourceBlocks(document.body)) {
+  for (const hit of detectSourceBlocks(document.body, { handlePlantuml: ctx.handlePlantuml })) {
     if (hit.node.closest('.bd-mount')) continue
     try {
       await processHit(hit, { ...base, theme: hit.themeOverride })
@@ -34,11 +43,20 @@ export async function scanOnce(ctx: ScanContext): Promise<void> {
       : detectRenderedDiagrams(document.body)
     for (const node of rendered) {
       if (node.closest('.bd-mount')) continue
-      const source = ctx.quirks.recoverSource(node)
-      if (!source) continue
+      const recovered = ctx.quirks.recoverSource(node)
+      if (!recovered) continue
+      const { overrides, source } = parseDirective('mermaid', recovered)
+      if (isExcluded(overrides)) continue
       ctx.quirks.hideNativeRender?.(node)
+      const ghHit = {
+        source,
+        sourceFormat: 'mermaid' as const,
+        node,
+        themeOverride: overrides.theme,
+        bgOverride: overrides.bg,
+      }
       try {
-        await processHit({ source, sourceFormat: 'mermaid', node }, base)
+        await processHit(ghHit, { ...base, theme: ghHit.themeOverride })
       } catch (err) {
         console.debug('[beauty-diagram] processHit failed; leaving native render', err)
       }
@@ -71,6 +89,8 @@ async function main(): Promise<void> {
     quirks,
     replaceRendered: settings.replaceRendered,
     editorWebBase: 'https://www.beauty-diagram.com',
+    imageWidth: settings.defaultImageWidth,
+    handlePlantuml: settings.handlePlantuml,
   }
   quirks?.spaNav?.(() => void scanOnce(ctx))
   startObserver(() => void scanOnce(ctx))

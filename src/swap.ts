@@ -11,6 +11,7 @@ export interface SwapDeps {
   editorWebBase?: string
   theme?: string // explicit override (e.g. from a directive); takes precedence over defaultTheme (processHit uses `deps.theme ?? deps.defaultTheme`)
   renderMode?: 'img' | 'inline-svg'
+  imageWidth?: string
 }
 
 /**
@@ -96,6 +97,9 @@ export async function processHit(hit: SourceHit, deps: SwapDeps): Promise<void> 
 
   const preview = document.createElement('div')
   preview.className = 'bd-preview'
+  if (deps.imageWidth && deps.imageWidth !== 'full') {
+    preview.style.maxWidth = deps.imageWidth
+  }
   if (result.kind === 'img-url') {
     const img = document.createElement('img')
     img.src = result.url

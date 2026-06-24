@@ -5,12 +5,16 @@ export interface Settings {
   defaultTheme: string
   apiBase: string
   replaceRendered: boolean
+  defaultImageWidth: string
+  handlePlantuml: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   defaultTheme: 'classic',
   apiBase: DEFAULT_API_BASE,
   replaceRendered: true,
+  defaultImageWidth: 'full',
+  handlePlantuml: true,
 }
 
 export function loadSettings(): Promise<Settings> {

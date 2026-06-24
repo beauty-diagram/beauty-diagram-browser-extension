@@ -77,4 +77,26 @@ describe('processHit', () => {
     expect(host.querySelectorAll('img')).toHaveLength(1)
     expect(host.querySelector('img')!.getAttribute('src')).toBe('https://x/y.svg')
   })
+
+  it('defaultImageWidth: caps preview maxWidth when a CSS length is given', async () => {
+    const { hit, host } = hitFrom('<pre><code>graph TD; A-->B</code></pre>')
+    await processHit(hit, { ...deps, imageWidth: '640px' })
+    const preview = host.querySelector('.bd-preview') as HTMLElement
+    expect(preview).toBeTruthy()
+    expect(preview.style.maxWidth).toBe('640px')
+  })
+
+  it('defaultImageWidth: no maxWidth set when imageWidth is "full"', async () => {
+    const { hit, host } = hitFrom('<pre><code>graph TD; A-->B</code></pre>')
+    await processHit(hit, { ...deps, imageWidth: 'full' })
+    const preview = host.querySelector('.bd-preview') as HTMLElement
+    expect(preview.style.maxWidth).toBe('')
+  })
+
+  it('defaultImageWidth: no maxWidth set when imageWidth is omitted', async () => {
+    const { hit, host } = hitFrom('<pre><code>graph TD; A-->B</code></pre>')
+    await processHit(hit, deps)
+    const preview = host.querySelector('.bd-preview') as HTMLElement
+    expect(preview.style.maxWidth).toBe('')
+  })
 })

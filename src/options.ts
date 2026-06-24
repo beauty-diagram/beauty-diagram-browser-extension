@@ -5,7 +5,9 @@ export function readForm(): Settings {
   const theme = (document.getElementById('defaultTheme') as HTMLSelectElement).value
   const apiBase = (document.getElementById('apiBase') as HTMLInputElement).value
   const replaceRendered = (document.getElementById('replaceRendered') as HTMLInputElement).checked
-  return { defaultTheme: theme, apiBase, replaceRendered }
+  const defaultImageWidth = (document.getElementById('defaultImageWidth') as HTMLInputElement).value
+  const handlePlantuml = (document.getElementById('handlePlantuml') as HTMLInputElement).checked
+  return { defaultTheme: theme, apiBase, replaceRendered, defaultImageWidth, handlePlantuml }
 }
 
 async function init(): Promise<void> {
@@ -17,6 +19,8 @@ async function init(): Promise<void> {
   sel.value = s.defaultTheme
   ;(document.getElementById('apiBase') as HTMLInputElement).value = s.apiBase
   ;(document.getElementById('replaceRendered') as HTMLInputElement).checked = s.replaceRendered
+  ;(document.getElementById('defaultImageWidth') as HTMLInputElement).value = s.defaultImageWidth
+  ;(document.getElementById('handlePlantuml') as HTMLInputElement).checked = s.handlePlantuml
   document.getElementById('save')!.addEventListener('click', async () => {
     await saveSettings(readForm())
     const status = document.getElementById('status')!
