@@ -36,7 +36,10 @@ export interface MintDeps {
   getCache: (k: string) => Promise<string | undefined>
   setCache: (k: string, v: string) => Promise<void>
   hash: (s: string) => Promise<string>
+  now: () => number
 }
+
+const SHARE_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 export async function mintShare(
   input: { source: string; sourceFormat: string; theme: string },
@@ -44,8 +47,13 @@ export async function mintShare(
 ): Promise<MintShareResponse> {
   if (!deps.apiKey) return { ok: false, error: 'no-api-key' }
   const cacheKey = `bd:share:${await deps.hash(`${input.source}\0${input.theme}\0${input.sourceFormat}`)}`
-  const cached = await deps.getCache(cacheKey)
-  if (cached) return { ok: true, token: cached }
+  const raw = await deps.getCache(cacheKey)
+  if (raw) {
+    try {
+      const c = JSON.parse(raw) as { token?: string; ts?: number }
+      if (c.token && typeof c.ts === 'number' && deps.now() - c.ts < SHARE_TTL_MS) return { ok: true, token: c.token }
+    } catch {}
+  }
   try {
     const res = await deps.fetchFn(`${deps.apiBase}/v1/share`, {
       method: 'POST',
@@ -59,7 +67,7 @@ export async function mintShare(
     if (res.status !== 200) return { ok: false, error: `http-${res.status}` }
     const data = (await res.json()) as { shareToken?: string }
     if (!data.shareToken) return { ok: false, error: 'no-token' }
-    await deps.setCache(cacheKey, data.shareToken)
+    await deps.setCache(cacheKey, JSON.stringify({ token: data.shareToken, ts: deps.now() }))
     return { ok: true, token: data.shareToken }
   } catch {
     return { ok: false, error: 'network' }
@@ -117,6 +125,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               new Promise((res) =>
                 chrome.storage.local.set({ [k]: v }, () => res())),
             hash: shortHash,
+            now: () => Date.now(),
           }
           mintShare(msg, deps).then(sendResponse)
         })

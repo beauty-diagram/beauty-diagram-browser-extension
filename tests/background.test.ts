@@ -33,6 +33,7 @@ function makeMintDeps(overrides: Partial<MintDeps> = {}): MintDeps {
     getCache: async (k) => cache[k],
     setCache: async (k, v) => { cache[k] = v },
     hash: async (s) => `hash(${s.slice(0, 8)})`,
+    now: () => 1000,
     ...overrides,
   }
 }
@@ -47,19 +48,42 @@ describe('mintShare', () => {
 
   it('returns cached token without calling fetch on cache hit', async () => {
     const cache: Record<string, string> = {}
-    const hash = async (s: string) => 'fixed-hash'
+    const hash = async (_s: string) => 'fixed-hash'
     const cacheKey = 'bd:share:fixed-hash'
-    cache[cacheKey] = 'cached-token-xyz'
+    cache[cacheKey] = JSON.stringify({ token: 'cached-token', ts: 1000 })
     const fetchFn = vi.fn()
     const deps = makeMintDeps({
       getCache: async (k) => cache[k],
       setCache: async (k, v) => { cache[k] = v },
       hash,
       fetchFn: fetchFn as any,
+      now: () => 1000,
     })
     const result = await mintShare({ source: 'graph TD; A-->B', sourceFormat: 'mermaid', theme: 'classic' }, deps)
-    expect(result).toEqual({ ok: true, token: 'cached-token-xyz' })
+    expect(result).toEqual({ ok: true, token: 'cached-token' })
     expect(fetchFn).not.toHaveBeenCalled()
+  })
+
+  it('re-fetches when cache entry is stale (older than 7 days)', async () => {
+    const SHARE_TTL_MS = 7 * 24 * 60 * 60 * 1000
+    const cache: Record<string, string> = {}
+    const hash = async (_s: string) => 'fixed-hash'
+    const cacheKey = 'bd:share:fixed-hash'
+    cache[cacheKey] = JSON.stringify({ token: 'stale-token', ts: 0 })
+    const fetchFn = vi.fn().mockResolvedValue({
+      status: 200,
+      json: async () => ({ shareToken: 'fresh-token' }),
+    })
+    const deps = makeMintDeps({
+      getCache: async (k) => cache[k],
+      setCache: async (k, v) => { cache[k] = v },
+      hash,
+      fetchFn: fetchFn as any,
+      now: () => SHARE_TTL_MS + 1,
+    })
+    const result = await mintShare({ source: 'graph TD; A-->B', sourceFormat: 'mermaid', theme: 'classic' }, deps)
+    expect(fetchFn).toHaveBeenCalledOnce()
+    expect(result).toEqual({ ok: true, token: 'fresh-token' })
   })
 
   it('POSTs to /v1/share with correct headers and body on cache miss', async () => {
@@ -88,10 +112,12 @@ describe('mintShare', () => {
     expect(body.theme).toBe('classic')
     expect(body.sourceFormat).toBe('mermaid')
 
-    // writes to cache
+    // writes to cache as JSON { token, ts }
     const cacheKey = Object.keys(cache)[0]
     expect(cacheKey).toMatch(/^bd:share:/)
-    expect(cache[cacheKey]).toBe('new-token-abc')
+    const stored = JSON.parse(cache[cacheKey]) as { token: string; ts: number }
+    expect(stored.token).toBe('new-token-abc')
+    expect(typeof stored.ts).toBe('number')
   })
 
   it('returns error on non-200 response', async () => {

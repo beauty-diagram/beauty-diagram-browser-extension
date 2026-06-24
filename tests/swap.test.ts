@@ -99,4 +99,11 @@ describe('processHit', () => {
     const preview = host.querySelector('.bd-preview') as HTMLElement
     expect(preview.style.maxWidth).toBe('')
   })
+
+  it('passes deps.shareMode through to the adapter render input', async () => {
+    const { hit } = hitFrom('<pre><code>graph TD\nA--&gt;B</code></pre>')
+    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await processHit(hit, { ...deps, adapter, shareMode: true })
+    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ shareMode: true }))
+  })
 })
