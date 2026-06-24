@@ -55,14 +55,22 @@ if (
             return
           }
           const id = `bd-${origin}`
-          try { await chrome.scripting.unregisterContentScripts({ ids: [id] }) } catch {}
-          await chrome.scripting.registerContentScripts([{
-            id,
-            matches: [`${origin}/*`],
-            js: ['dist/content.js'],
-            css: ['content.css'],
-            runAt: 'document_idle',
-          }])
+          try {
+            try { await chrome.scripting.unregisterContentScripts({ ids: [id] }) } catch {}
+            await chrome.scripting.registerContentScripts([{
+              id,
+              matches: [`${origin}/*`],
+              js: ['dist/content.js'],
+              css: ['content.css'],
+              runAt: 'document_idle',
+            }])
+          } catch (err) {
+            // Registration failed — revert and bail BEFORE setSiteEnabled so we don't
+            // leave a half-state (flag on, but no script registered).
+            console.error('[beauty-diagram] registerContentScripts failed', err)
+            ;(e.target as HTMLInputElement).checked = false
+            return
+          }
         } else {
           // Disabling an opt-in site: unregister dynamic script
           try { await chrome.scripting.unregisterContentScripts({ ids: [`bd-${origin}`] }) } catch {}
