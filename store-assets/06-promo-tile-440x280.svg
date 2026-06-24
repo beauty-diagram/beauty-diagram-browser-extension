@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="440" height="280" viewBox="0 0 440 280" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','SF Pro Display',-apple-system,system-ui,sans-serif">
+<title>Beauty Diagram promotional tile</title>
+<desc>The Beauty Diagram logo, name, tagline and a small A to B to C diagram motif on a dark background.</desc>
+<rect x="0" y="0" width="440" height="280" fill="#0F0F14"/>
+<g transform="translate(198,32) scale(0.7)">
+<path d="M20 20 L44 44" stroke="#A78BFA" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<rect x="8" y="8" width="22" height="22" rx="7" fill="#E4E4E7"/>
+<rect x="34" y="34" width="22" height="22" rx="7" fill="none" stroke="#A78BFA" stroke-width="3.5"/>
+<circle cx="16" cy="16" r="3" fill="#0F0F14"/>
+</g>
+<text x="220" y="112" fill="#F4F4F5" font-size="23" font-weight="600" letter-spacing="-0.3" text-anchor="middle">Beauty Diagram</text>
+<text x="220" y="140" fill="#9CA3AF" font-size="15" font-weight="400" text-anchor="middle">Mermaid &amp; PlantUML, beautified in-place</text>
+<rect x="146" y="190" width="44" height="36" rx="8" fill="#FFFFFF" stroke="#3A3A42" stroke-width="1.5"/>
+<text x="168" y="214" fill="#111111" font-size="14" font-weight="700" text-anchor="middle">A</text>
+<line x1="190" y1="208" x2="197" y2="208" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
+<polygon points="197,204 203,208 197,212" fill="#A78BFA"/>
+<rect x="200" y="190" width="44" height="36" rx="8" fill="#8FE0CE" stroke="#3A3A42" stroke-width="1.5"/>
+<text x="222" y="214" fill="#08332A" font-size="14" font-weight="700" text-anchor="middle">B</text>
+<line x1="244" y1="208" x2="251" y2="208" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>
+<polygon points="251,204 257,208 251,212" fill="#A78BFA"/>
+<rect x="254" y="190" width="44" height="36" rx="8" fill="#D7CCF7" stroke="#3A3A42" stroke-width="1.5"/>
+<text x="276" y="214" fill="#2E1C6B" font-size="14" font-weight="700" text-anchor="middle">C</text>
+</svg>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="800" viewBox="0 0 1280 800" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','SF Pro Display',-apple-system,system-ui,sans-serif">
+<title>Beauty Diagram store screenshot: render with one click</title>
+<desc>Shows a raw Mermaid code block with a Render button, an arrow, and the resulting beautified diagram.</desc>
+<defs>
+<clipPath id="clip2"><rect x="740" y="400" width="480" height="300" rx="18"/></clipPath>
+</defs>
+<rect x="0" y="0" width="1280" height="800" fill="#0F0F14"/>
+<g transform="translate(80,52) scale(0.625)">
+<path d="M20 20 L44 44" stroke="#A78BFA" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<rect x="8" y="8" width="22" height="22" rx="7" fill="#E4E4E7"/>
+<rect x="34" y="34" width="22" height="22" rx="7" fill="none" stroke="#A78BFA" stroke-width="3.5"/>
+<circle cx="16" cy="16" r="3" fill="#0F0F14"/>
+</g>
+<text x="132" y="81" fill="#F4F4F5" font-size="24" font-weight="600" letter-spacing="-0.3">Beauty Diagram</text>
+<text x="80" y="248" font-size="56" font-weight="700" letter-spacing="-1.3"><tspan fill="#F4F4F5">Render with </tspan><tspan fill="#A78BFA">one click.</tspan></text>
+<text x="82" y="296" fill="#9CA3AF" font-size="22" font-weight="400">Code blocks stay raw until you press ◇ Render — no surprise rendering.</text>
+<rect x="80" y="400" width="540" height="300" rx="18" fill="#17171C" stroke="#2A2A33" stroke-width="1"/>
+<text x="108" y="468" fill="#6B7280" font-size="20" font-family="'SF Mono',ui-monospace,monospace">%%{init: {'theme':'base'}}%%</text>
+<text x="108" y="504" fill="#E2E8F0" font-size="20" font-family="'SF Mono',ui-monospace,monospace">flowchart LR</text>
+<text x="108" y="540" fill="#E2E8F0" font-size="20" font-family="'SF Mono',ui-monospace,monospace">  A --&gt; B --&gt; C</text>
+<rect x="108" y="582" width="322" height="46" rx="23" fill="#241F38" stroke="#5B4BA6" stroke-width="1.5"/>
+<text x="269" y="611" fill="#C4B5FD" font-size="17" font-weight="600" text-anchor="middle">◇ Render with Beauty Diagram</text>
+<g transform="translate(440,592)"><path d="M0 0 L0 21 L5 16 L9 24 L12 22 L8 15 L15 15 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/></g>
+<text x="687" y="516" fill="#A78BFA" font-size="16" font-weight="500" text-anchor="middle">click</text>
+<line x1="650" y1="540" x2="706" y2="540" stroke="#8B5CF6" stroke-width="5" stroke-linecap="round"/>
+<polygon points="706,532 722,540 706,548" fill="#8B5CF6"/>
+<rect x="740" y="400" width="480" height="300" rx="18" fill="#ECE7D6" stroke="#00000018" stroke-width="1"/>
+<g clip-path="url(#clip2)" stroke="#1115200F" stroke-width="1">
+<line x1="780" y1="400" x2="780" y2="700"/><line x1="820" y1="400" x2="820" y2="700"/><line x1="860" y1="400" x2="860" y2="700"/><line x1="900" y1="400" x2="900" y2="700"/><line x1="940" y1="400" x2="940" y2="700"/><line x1="980" y1="400" x2="980" y2="700"/><line x1="1020" y1="400" x2="1020" y2="700"/><line x1="1060" y1="400" x2="1060" y2="700"/><line x1="1100" y1="400" x2="1100" y2="700"/><line x1="1140" y1="400" x2="1140" y2="700"/><line x1="1180" y1="400" x2="1180" y2="700"/>
+<line x1="740" y1="440" x2="1220" y2="440"/><line x1="740" y1="480" x2="1220" y2="480"/><line x1="740" y1="520" x2="1220" y2="520"/><line x1="740" y1="560" x2="1220" y2="560"/><line x1="740" y1="600" x2="1220" y2="600"/><line x1="740" y1="640" x2="1220" y2="640"/><line x1="740" y1="680" x2="1220" y2="680"/>
+</g>
+<rect x="764" y="426" width="64" height="26" rx="8" fill="#CDC2F2"/>
+<text x="796" y="443" fill="#4B2E9E" font-size="14" font-weight="600" text-anchor="middle">after</text>
+<rect x="785" y="527" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="778" y="520" width="100" height="66" rx="10" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="788" y="534" width="6" height="38" rx="3" fill="#1A1A1A"/>
+<text x="835" y="560" fill="#111111" font-size="22" font-weight="700" text-anchor="middle">A</text>
+<line x1="884" y1="553" x2="930" y2="553" stroke="#111111" stroke-width="3"/>
+<polygon points="930,546 942,553 930,560" fill="#111111"/>
+<rect x="945" y="527" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="938" y="520" width="100" height="66" rx="10" fill="#8FE0CE" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="948" y="534" width="6" height="38" rx="3" fill="#0F6E56"/>
+<text x="995" y="560" fill="#08332A" font-size="22" font-weight="700" text-anchor="middle">B</text>
+<line x1="1044" y1="553" x2="1090" y2="553" stroke="#111111" stroke-width="3"/>
+<polygon points="1090,546 1102,553 1090,560" fill="#111111"/>
+<rect x="1105" y="527" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="1098" y="520" width="100" height="66" rx="10" fill="#D7CCF7" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="1108" y="534" width="6" height="38" rx="3" fill="#5B3FB5"/>
+<text x="1155" y="560" fill="#2E1C6B" font-size="22" font-weight="700" text-anchor="middle">C</text>
+<rect x="80" y="742" width="178" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="100" y="764" fill="#C4B5FD" font-size="15" font-weight="500">no copy-paste</text>
+<rect x="272" y="742" width="194" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="292" y="764" fill="#C4B5FD" font-size="15" font-weight="500">source untouched</text>
+<rect x="480" y="742" width="186" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="500" y="764" fill="#C4B5FD" font-size="15" font-weight="500">preview ⇄ source</text>
+</svg>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="800" viewBox="0 0 1280 800" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','SF Pro Display',-apple-system,system-ui,sans-serif">
+<title>Beauty Diagram store hero: raw Mermaid code on the left, a beautified diagram on the right</title>
+<desc>A 1280 by 800 store screenshot showing the headline "Mermaid and PlantUML, beautified in-place" with a before and after comparison.</desc>
+<defs>
+<clipPath id="afterclip"><rect x="700" y="430" width="500" height="290" rx="18"/></clipPath>
+</defs>
+<rect x="0" y="0" width="1280" height="800" fill="#0F0F14"/>
+<g transform="translate(80,52) scale(0.625)">
+<path d="M20 20 L44 44" stroke="#A78BFA" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<rect x="8" y="8" width="22" height="22" rx="7" fill="#E4E4E7"/>
+<rect x="34" y="34" width="22" height="22" rx="7" fill="none" stroke="#A78BFA" stroke-width="3.5"/>
+<circle cx="16" cy="16" r="3" fill="#0F0F14"/>
+</g>
+<text x="132" y="81" fill="#F4F4F5" font-size="24" font-weight="600" letter-spacing="-0.3">Beauty Diagram</text>
+<text x="80" y="232" fill="#F4F4F5" font-size="58" font-weight="700" letter-spacing="-1.5">Mermaid &amp; PlantUML,</text>
+<text x="80" y="300" font-size="58" font-weight="700" letter-spacing="-1.5"><tspan fill="#A78BFA">beautified</tspan><tspan fill="#F4F4F5"> in-place.</tspan></text>
+<text x="82" y="352" fill="#9CA3AF" font-size="22" font-weight="400">A Chromium extension · GitHub · GitLab · Jira · dev.to · AI chats</text>
+<rect x="80" y="430" width="460" height="290" rx="18" fill="#17171C" stroke="#2A2A33" stroke-width="1"/>
+<rect x="104" y="456" width="74" height="26" rx="8" fill="#26262E"/>
+<text x="141" y="473" fill="#9CA3AF" font-size="14" font-weight="500" text-anchor="middle">before</text>
+<text x="104" y="528" fill="#6B7280" font-size="21" font-family="'SF Mono',ui-monospace,monospace">%%{init: {'theme':'base'}}%%</text>
+<text x="104" y="566" fill="#E2E8F0" font-size="21" font-family="'SF Mono',ui-monospace,monospace">flowchart LR</text>
+<text x="104" y="604" fill="#E2E8F0" font-size="21" font-family="'SF Mono',ui-monospace,monospace">  A --&gt; B --&gt; C</text>
+<text x="619" y="552" fill="#A78BFA" font-size="16" font-weight="500" text-anchor="middle">in place</text>
+<line x1="575" y1="575" x2="648" y2="575" stroke="#8B5CF6" stroke-width="5" stroke-linecap="round"/>
+<polygon points="648,567 664,575 648,583" fill="#8B5CF6"/>
+<rect x="700" y="430" width="500" height="290" rx="18" fill="#ECE7D6" stroke="#00000018" stroke-width="1"/>
+<g clip-path="url(#afterclip)" stroke="#1115200F" stroke-width="1">
+<line x1="740" y1="430" x2="740" y2="720"/><line x1="780" y1="430" x2="780" y2="720"/><line x1="820" y1="430" x2="820" y2="720"/><line x1="860" y1="430" x2="860" y2="720"/><line x1="900" y1="430" x2="900" y2="720"/><line x1="940" y1="430" x2="940" y2="720"/><line x1="980" y1="430" x2="980" y2="720"/><line x1="1020" y1="430" x2="1020" y2="720"/><line x1="1060" y1="430" x2="1060" y2="720"/><line x1="1100" y1="430" x2="1100" y2="720"/><line x1="1140" y1="430" x2="1140" y2="720"/><line x1="1180" y1="430" x2="1180" y2="720"/>
+<line x1="700" y1="470" x2="1200" y2="470"/><line x1="700" y1="510" x2="1200" y2="510"/><line x1="700" y1="550" x2="1200" y2="550"/><line x1="700" y1="590" x2="1200" y2="590"/><line x1="700" y1="630" x2="1200" y2="630"/><line x1="700" y1="670" x2="1200" y2="670"/>
+</g>
+<rect x="724" y="456" width="64" height="26" rx="8" fill="#CDC2F2"/>
+<text x="756" y="473" fill="#4B2E9E" font-size="14" font-weight="600" text-anchor="middle">after</text>
+<rect x="747" y="567" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="740" y="560" width="100" height="66" rx="10" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="750" y="574" width="6" height="38" rx="3" fill="#1A1A1A"/>
+<text x="797" y="600" fill="#111111" font-size="22" font-weight="700" text-anchor="middle">A</text>
+<line x1="846" y1="593" x2="896" y2="593" stroke="#111111" stroke-width="3"/>
+<polygon points="896,586 908,593 896,600" fill="#111111"/>
+<rect x="912" y="567" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="905" y="560" width="100" height="66" rx="10" fill="#8FE0CE" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="915" y="574" width="6" height="38" rx="3" fill="#0F6E56"/>
+<text x="962" y="600" fill="#08332A" font-size="22" font-weight="700" text-anchor="middle">B</text>
+<line x1="1011" y1="593" x2="1061" y2="593" stroke="#111111" stroke-width="3"/>
+<polygon points="1061,586 1073,593 1061,600" fill="#111111"/>
+<rect x="1077" y="567" width="100" height="66" rx="10" fill="#1A1A1A"/>
+<rect x="1070" y="560" width="100" height="66" rx="10" fill="#D7CCF7" stroke="#1A1A1A" stroke-width="2"/>
+<rect x="1080" y="574" width="6" height="38" rx="3" fill="#5B3FB5"/>
+<text x="1127" y="600" fill="#2E1C6B" font-size="22" font-weight="700" text-anchor="middle">C</text>
+<rect x="1012" y="676" width="166" height="30" rx="15" fill="#FFFFFF" stroke="#00000018"/>
+<text x="1095" y="696" fill="#6B7280" font-size="13" font-weight="500" text-anchor="middle">Powered by Beauty Diagram</text>
+<rect x="80" y="742" width="206" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="100" y="764" fill="#C4B5FD" font-size="15" font-weight="500">◇ one-click render</text>
+<rect x="300" y="742" width="186" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="320" y="764" fill="#C4B5FD" font-size="15" font-weight="500">source kept intact</text>
+<rect x="500" y="742" width="150" height="34" rx="17" fill="#1A1A21" stroke="#2E2E38"/>
+<text x="520" y="764" fill="#C4B5FD" font-size="15" font-weight="500">12+ platforms</text>
+</svg>

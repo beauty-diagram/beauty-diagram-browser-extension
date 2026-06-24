@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="800" viewBox="0 0 1280 800" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','SF Pro Display',-apple-system,system-ui,sans-serif">
+<title>Beauty Diagram store screenshot: beautiful to read, source one tap away</title>
+<desc>A beautified diagram with a toolbar to view source, copy, or open in editor, plus a toggle to the raw Mermaid code.</desc>
+<defs><clipPath id="clip4"><rect x="80" y="384" width="560" height="300" rx="18"/></clipPath></defs>
+<rect x="0" y="0" width="1280" height="800" fill="#0F0F14"/>
+<g transform="translate(80,52) scale(0.625)">
+<path d="M20 20 L44 44" stroke="#A78BFA" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<rect x="8" y="8" width="22" height="22" rx="7" fill="#E4E4E7"/>
+<rect x="34" y="34" width="22" height="22" rx="7" fill="none" stroke="#A78BFA" stroke-width="3.5"/>
+<circle cx="16" cy="16" r="3" fill="#0F0F14"/>
+</g>
+<text x="132" y="81" fill="#F4F4F5" font-size="24" font-weight="600" letter-spacing="-0.3">Beauty Diagram</text>
+<text x="80" y="246" font-size="50" font-weight="700" letter-spacing="-1.1"><tspan fill="#F4F4F5">Beautiful to read. </tspan><tspan fill="#A78BFA">Source one tap away.</tspan></text>
+<text x="82" y="292" fill="#9CA3AF" font-size="22" font-weight="400">Flip to the original Mermaid, copy it, or open it in the full editor.</text>
+<rect x="80" y="384" width="560" height="300" rx="18" fill="#ECE7D6" stroke="#00000018"/>
+<g clip-path="url(#clip4)" stroke="#1115200F" stroke-width="1">
+<line x1="160" y1="384" x2="160" y2="684"/><line x1="240" y1="384" x2="240" y2="684"/><line x1="320" y1="384" x2="320" y2="684"/><line x1="400" y1="384" x2="400" y2="684"/><line x1="480" y1="384" x2="480" y2="684"/><line x1="560" y1="384" x2="560" y2="684"/>
+<line x1="80" y1="464" x2="640" y2="464"/><line x1="80" y1="544" x2="640" y2="544"/><line x1="80" y1="624" x2="640" y2="624"/>
+</g>
+<rect x="157" y="519" width="100" height="64" rx="10" fill="#1A1A1A"/>
+<rect x="150" y="512" width="100" height="64" rx="10" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<text x="200" y="551" fill="#111111" font-size="22" font-weight="700" text-anchor="middle">A</text>
+<line x1="256" y1="544" x2="306" y2="544" stroke="#111111" stroke-width="3"/><polygon points="306,537 318,544 306,551" fill="#111111"/>
+<rect x="327" y="519" width="100" height="64" rx="10" fill="#1A1A1A"/>
+<rect x="320" y="512" width="100" height="64" rx="10" fill="#8FE0CE" stroke="#1A1A1A" stroke-width="2"/>
+<text x="370" y="551" fill="#08332A" font-size="22" font-weight="700" text-anchor="middle">B</text>
+<line x1="426" y1="544" x2="476" y2="544" stroke="#111111" stroke-width="3"/><polygon points="476,537 488,544 476,551" fill="#111111"/>
+<rect x="497" y="519" width="100" height="64" rx="10" fill="#1A1A1A"/>
+<rect x="490" y="512" width="100" height="64" rx="10" fill="#D7CCF7" stroke="#1A1A1A" stroke-width="2"/>
+<text x="540" y="551" fill="#2E1C6B" font-size="22" font-weight="700" text-anchor="middle">C</text>
+<text x="680" y="466" fill="#A78BFA" font-size="14" font-weight="500" text-anchor="middle">toggle</text>
+<line x1="654" y1="498" x2="700" y2="498" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round"/><polygon points="700,491 714,498 700,505" fill="#8B5CF6"/>
+<line x1="706" y1="520" x2="660" y2="520" stroke="#8B5CF6" stroke-width="4" stroke-linecap="round"/><polygon points="660,513 646,520 660,527" fill="#8B5CF6"/>
+<rect x="720" y="384" width="480" height="300" rx="18" fill="#17171C" stroke="#2A2A33"/>
+<rect x="744" y="410" width="74" height="26" rx="8" fill="#26262E"/><text x="781" y="427" fill="#9CA3AF" font-size="14" font-weight="500" text-anchor="middle">source</text>
+<text x="744" y="492" fill="#6B7280" font-size="20" font-family="'SF Mono',ui-monospace,monospace">%%{init: {'theme':'base'}}%%</text>
+<text x="744" y="528" fill="#E2E8F0" font-size="20" font-family="'SF Mono',ui-monospace,monospace">flowchart LR</text>
+<text x="744" y="564" fill="#E2E8F0" font-size="20" font-family="'SF Mono',ui-monospace,monospace">  A --&gt; B --&gt; C</text>
+<rect x="80" y="702" width="146" height="36" rx="10" fill="#241F38" stroke="#5B4BA6"/><text x="153" y="726" fill="#C4B5FD" font-size="15" font-weight="600" text-anchor="middle">&lt;/&gt; Source</text>
+<rect x="238" y="702" width="92" height="36" rx="10" fill="#1A1A21" stroke="#2E2E38"/><text x="284" y="726" fill="#9CA3AF" font-size="15" font-weight="500" text-anchor="middle">Copy</text>
+<rect x="342" y="702" width="168" height="36" rx="10" fill="#1A1A21" stroke="#2E2E38"/><text x="426" y="726" fill="#9CA3AF" font-size="15" font-weight="500" text-anchor="middle">Open in editor</text>
+</svg>
