@@ -17,11 +17,14 @@ function button(cls: string, label: string): HTMLButtonElement {
   return b
 }
 
+const LABEL_SOURCE = '</> Source'
+const LABEL_PREVIEW = '🖼 Preview'
+
 export function buildBar(opts: BarOptions): HTMLElement {
   const bar = document.createElement('div')
   bar.className = 'bd-bar'
 
-  const toggle = button('bd-toggle', '</> Source')
+  const toggle = button('bd-toggle', LABEL_SOURCE)
   toggle.addEventListener('click', () => {
     const preview = opts.mount.querySelector('.bd-preview') as HTMLElement | null
     const source = opts.mount.querySelector('.bd-source') as HTMLElement | null
@@ -30,17 +33,17 @@ export function buildBar(opts: BarOptions): HTMLElement {
     if (showingSource) {
       source.setAttribute('hidden', '')
       preview.removeAttribute('hidden')
-      toggle.textContent = '</> Source'
+      toggle.textContent = LABEL_SOURCE
     } else {
       preview.setAttribute('hidden', '')
       source.removeAttribute('hidden')
-      toggle.textContent = '🖼 Preview'
+      toggle.textContent = LABEL_PREVIEW
     }
   })
 
   const copy = button('bd-copy', '⧉ Copy')
   copy.addEventListener('click', () => {
-    void navigator.clipboard?.writeText(opts.source)
+    navigator.clipboard?.writeText(opts.source).catch(() => { /* copy failed (focus/permission) — ignore, no UI yet */ })
   })
 
   const edit = document.createElement('a')

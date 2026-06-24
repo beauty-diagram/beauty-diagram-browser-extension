@@ -9,7 +9,7 @@ export interface SwapDeps {
   adapter: RenderAdapter
   defaultTheme: string
   editorWebBase?: string
-  theme?: string // optional explicit override (e.g. from directive)
+  theme?: string // explicit override (e.g. from a directive); takes precedence over defaultTheme (processHit uses `deps.theme ?? deps.defaultTheme`)
   renderMode?: 'img' | 'inline-svg'
 }
 
@@ -101,7 +101,9 @@ export async function processHit(hit: SourceHit, deps: SwapDeps): Promise<void> 
     img.alt = hit.source.split('\n')[0].slice(0, 120)
     preview.appendChild(img)
   } else {
-    preview.innerHTML = result.markup // markup already sanitized by background (see Task 1.9)
+    // markup is pre-sanitized by the background worker (sanitizeSvg) before it reaches
+    // here; only Beauty Diagram API output is ever assigned. Do not assign untrusted HTML.
+    preview.innerHTML = result.markup
   }
 
   const sourceView = document.createElement('div')

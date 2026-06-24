@@ -4,6 +4,8 @@ type Scan = () => void
  *  MutationObserver for async/lazy content, and history hooks for SPA navs
  *  (GitHub Turbo / Atlassian). Returns a stop() that removes everything. */
 export function startObserver(scan: Scan, opts?: { debounceMs?: number }): () => void {
+  if (!document.body) return () => {}
+
   const debounceMs = opts?.debounceMs ?? 150
   let timer: ReturnType<typeof setTimeout> | null = null
   const debounced = () => {

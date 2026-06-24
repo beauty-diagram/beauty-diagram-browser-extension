@@ -32,4 +32,19 @@ describe('githubQuirks', () => {
     expect(src).toContain('<br/>')  // entity-decoded, NOT &lt;br/&gt;
     expect(src).toContain('-->')     // entity-decoded edge
   })
+
+  it('recoverSource falls back to clipboard-copy[value] when data-plain is absent', () => {
+    const root = loadFixture('github-readme.html')
+    const node = githubQuirks.detectRendered!(root)[0]
+    node.querySelector('.js-render-enrichment-target')!.removeAttribute('data-plain')
+    expect(githubQuirks.recoverSource!(node)!.startsWith('flowchart LR')).toBe(true)
+  })
+
+  it('recoverSource falls back to pre[lang=mermaid] when data-plain and clipboard-copy are absent', () => {
+    const root = loadFixture('github-readme.html')
+    const node = githubQuirks.detectRendered!(root)[0]
+    node.querySelector('.js-render-enrichment-target')!.removeAttribute('data-plain')
+    node.querySelector('clipboard-copy')!.removeAttribute('value')
+    expect(githubQuirks.recoverSource!(node)!.startsWith('flowchart LR')).toBe(true)
+  })
 })
