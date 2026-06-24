@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Beauty Diagram — Options</title>
-<style>body{font-family:system-ui;max-width:520px;margin:2rem auto;padding:0 1rem}label{display:block;margin:1rem 0 .25rem}input,select{width:100%;padding:.4rem}</style>
+<style>body{font-family:system-ui;max-width:520px;margin:2rem auto;padding:0 1rem}label{display:block;margin:1rem 0 .25rem}input,select{width:100%;padding:.4rem}.verify-row{display:flex;gap:.5rem;align-items:center;margin-top:.5rem}.verify-row button{flex-shrink:0}#verifyStatus{font-size:.85em;color:#555}</style>
 </head><body>
 <h1>Beauty Diagram</h1>
 <label for="defaultTheme">Default theme</label><select id="defaultTheme"></select>
@@ -8,6 +8,13 @@
 <label><input id="replaceRendered" type="checkbox" /> Replace already-rendered diagrams (Detector B)</label>
 <label for="defaultImageWidth">Diagram max-width (full / 800px / 640px / 480px / any CSS length)</label><input id="defaultImageWidth" />
 <label><input id="handlePlantuml" type="checkbox" /> Handle PlantUML diagrams</label>
+<label for="apiKey">API key (stored locally — never synced)</label>
+<input id="apiKey" type="password" placeholder="sk-…" />
+<div class="verify-row">
+  <button id="verifyKey">Verify API key</button>
+  <span id="verifyStatus"></span>
+</div>
+<label><input id="watermarkFree" type="checkbox" /> Watermark-free renders (requires API key)</label>
 <p><button id="save">Save</button> <span id="status"></span></p>
 <script src="dist/options.js"></script>
 </body></html>
