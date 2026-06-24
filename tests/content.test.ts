@@ -56,4 +56,23 @@ describe('scanOnce', () => {
     )
     expect((adapter.render as any).mock.calls[0][0].source.startsWith('flowchart LR')).toBe(true)
   })
+
+  it('GitHub B-path: directive theme override is parsed and passed to adapter; directive line stripped from source', async () => {
+    document.body.innerHTML =
+      '<section class="js-render-needs-enrichment" data-type="mermaid">' +
+      '<div class="js-render-enrichment-target" data-plain="%% bd:theme=atlas&#10;flowchart LR&#10;A--&gt;B"></div></section>'
+    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: githubQuirks, replaceRendered: true })
+    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ theme: 'atlas' }))
+    expect((adapter.render as any).mock.calls[0][0].source).not.toContain('bd:theme')
+  })
+
+  it('GitHub B-path: no directive → themeOverride undefined, falls back to defaultTheme', async () => {
+    document.body.innerHTML =
+      '<section class="js-render-needs-enrichment" data-type="mermaid">' +
+      '<div class="js-render-enrichment-target" data-plain="flowchart LR&#10;A--&gt;B"></div></section>'
+    const adapter = { render: vi.fn().mockResolvedValue({ kind: 'img-url', url: 'https://x/y.svg' }) }
+    await scanOnce({ adapter, defaultTheme: 'classic', quirks: githubQuirks, replaceRendered: true })
+    expect(adapter.render).toHaveBeenCalledWith(expect.objectContaining({ theme: 'classic' }))
+  })
 })
