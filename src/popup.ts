@@ -20,12 +20,15 @@ if (
     const siteEl = document.getElementById('siteEnabled') as HTMLInputElement
     const replaceEl = document.getElementById('replaceRendered') as HTMLInputElement
     const themeEl = document.getElementById('defaultTheme') as HTMLSelectElement
+    const hostEl = document.getElementById('siteHost') as HTMLElement
+    const widthSeg = document.getElementById('widthSeg') as HTMLElement
+    const widthBtns = Array.from(widthSeg.querySelectorAll('button'))
 
-    // Theme options (always)
+    // Theme options (capitalised label, lowercase value)
     for (const t of FALLBACK_THEMES) {
       const opt = document.createElement('option')
       opt.value = t
-      opt.textContent = t
+      opt.textContent = t.charAt(0).toUpperCase() + t.slice(1)
       themeEl.appendChild(opt)
     }
 
@@ -34,6 +37,11 @@ if (
     themeEl.value = settings.defaultTheme
     replaceEl.checked = settings.replaceRendered
 
+    const activeWidth = settings.defaultImageWidth || 'full'
+    for (const btn of widthBtns) {
+      btn.setAttribute('aria-pressed', String(btn.dataset.width === activeWidth))
+    }
+
     const reloadAndClose = async () => {
       if (tab?.id) await chrome.tabs.reload(tab.id)
       window.close()
@@ -41,6 +49,7 @@ if (
 
     // Per-site toggle — only meaningful on an http(s) origin
     if (origin) {
+      hostEl.textContent = origin.replace(/^https?:\/\//, '')
       siteEl.checked = await isSiteEnabled(origin)
       siteEl.addEventListener('change', async (e) => {
         const checked = (e.target as HTMLInputElement).checked
@@ -67,7 +76,9 @@ if (
         await reloadAndClose()
       })
     } else {
-      siteEl.disabled = true // no http origin (e.g. chrome:// page) — can't scope per-site
+      hostEl.textContent = 'Not available on this page'
+      siteEl.disabled = true
+      document.getElementById('siteRow')?.classList.add('off')
     }
 
     // Global controls — always wired
@@ -79,6 +90,13 @@ if (
       await saveSettings({ defaultTheme: (e.target as HTMLSelectElement).value })
       await reloadAndClose()
     })
+    for (const btn of widthBtns) {
+      btn.addEventListener('click', async () => {
+        widthBtns.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)))
+        await saveSettings({ defaultImageWidth: btn.dataset.width || 'full' })
+        await reloadAndClose()
+      })
+    }
     document.getElementById('openOptions')!.addEventListener('click', () => chrome.runtime.openOptionsPage())
   })()
 }
