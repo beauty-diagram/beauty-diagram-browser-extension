@@ -12,6 +12,7 @@ export interface SwapDeps {
   theme?: string // explicit override (e.g. from a directive); takes precedence over defaultTheme (processHit uses `deps.theme ?? deps.defaultTheme`)
   renderMode?: 'img' | 'inline-svg'
   imageWidth?: string
+  shareMode?: boolean
 }
 
 /**
@@ -86,6 +87,7 @@ export async function processHit(hit: SourceHit, deps: SwapDeps): Promise<void> 
     theme,
     bg: hit.bgOverride,
     renderMode: deps.renderMode,
+    shareMode: deps.shareMode,
   }
   const result = await deps.adapter.render(input)
   if (!result) return // fallback: leave native render
