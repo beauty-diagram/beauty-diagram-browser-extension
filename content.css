@@ -2,9 +2,24 @@
 .bd-preview img, .bd-preview svg { max-width: 100%; height: auto; display: block; }
 .bd-source pre { overflow: auto; padding: 0.75rem; border-radius: 6px; background: rgba(127,127,127,0.08); }
 .bd-source code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
-.bd-bar { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem; font-size: 12px; opacity: 0.75; }
-.bd-bar button, .bd-bar a { font: inherit; color: inherit; background: none; border: 1px solid currentColor; border-radius: 4px; padding: 1px 6px; cursor: pointer; text-decoration: none; }
-.bd-bar:hover { opacity: 1; }
+
+.bd-mount .bd-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; font: 500 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+.bd-mount .bd-bar button, .bd-mount .bd-bar a {
+  font: inherit; color: #4b5563 !important; background: #f3f4f6 !important; border: 1px solid rgba(17,17,17,.10) !important;
+  border-radius: 6px; padding: 3px 9px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; white-space: nowrap;
+}
+.bd-mount .bd-bar button:hover, .bd-mount .bd-bar a:hover { background: #e5e7eb !important; color: #111827 !important; }
+@media (prefers-color-scheme: dark) {
+  .bd-mount .bd-bar button, .bd-mount .bd-bar a { color: #cbd5e1 !important; background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.16) !important; }
+  .bd-mount .bd-bar button:hover, .bd-mount .bd-bar a:hover { background: rgba(255,255,255,.18) !important; color: #f8fafc !important; }
+}
+
+.bd-lightbox { position: fixed; inset: 0; z-index: 2147483000; background: rgba(10,10,14,.82); overflow: hidden; cursor: grab; }
+.bd-lightbox-fig { position: fixed; left: 0; top: 0; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-select: none; display: block; }
+.bd-lightbox-close { position: fixed; top: 14px; right: 16px; z-index: 1; width: 36px; height: 36px; border-radius: 999px; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 17px; line-height: 1; cursor: pointer; }
+.bd-lightbox-close:hover { background: rgba(255,255,255,.26); }
+.bd-lightbox-hint { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 1; font: 12px/1 -apple-system, system-ui, sans-serif; color: rgba(255,255,255,.72); background: rgba(0,0,0,.4); padding: 6px 12px; border-radius: 999px; pointer-events: none; white-space: nowrap; }
+
 .bd-render-bar { margin: 4px 0 2px; display: flex; }
 .bd-render-btn {
   font: 500 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;

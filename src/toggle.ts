@@ -1,4 +1,5 @@
 import { editorLink } from './editor-link'
+import { openLightbox } from './lightbox'
 import type { SourceFormat } from './types'
 
 export interface BarOptions {
@@ -46,6 +47,12 @@ export function buildBar(opts: BarOptions): HTMLElement {
     navigator.clipboard?.writeText(opts.source).catch(() => { /* copy failed (focus/permission) — ignore, no UI yet */ })
   })
 
+  const zoom = button('bd-zoom', '⤢ Zoom')
+  zoom.addEventListener('click', () => {
+    const preview = opts.mount.querySelector('.bd-preview') as HTMLElement | null
+    if (preview) openLightbox(preview)
+  })
+
   const edit = document.createElement('a')
   edit.className = 'bd-edit'
   edit.textContent = '↗ Open in editor'
@@ -58,6 +65,6 @@ export function buildBar(opts: BarOptions): HTMLElement {
     webBase: opts.editorWebBase,
   })
 
-  bar.append(toggle, copy, edit)
+  bar.append(toggle, copy, zoom, edit)
   return bar
 }

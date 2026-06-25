@@ -2,6 +2,7 @@ import type { SourceHit } from './detector'
 import type { RenderAdapter, RenderInput } from './render-adapter'
 import { shortHash } from './hash'
 import { buildBar } from './toggle'
+import { openLightbox } from './lightbox'
 
 const PROCESSED_ATTR = 'data-bd-processed'
 
@@ -102,6 +103,8 @@ export async function processHit(hit: SourceHit, deps: SwapDeps): Promise<void> 
   if (deps.imageWidth && deps.imageWidth !== 'full') {
     preview.style.maxWidth = deps.imageWidth
   }
+  preview.style.cursor = 'zoom-in'
+  preview.addEventListener('click', () => openLightbox(preview))
   if (result.kind === 'img-url') {
     const img = document.createElement('img')
     img.src = result.url
