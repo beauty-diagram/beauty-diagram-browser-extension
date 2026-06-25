@@ -1,8 +1,10 @@
 # Beauty Diagram — Browser Extension
 
 Beautify Mermaid & PlantUML diagrams in-place on GitHub, GitLab, Jira and Confluence.
-The extension swaps the native render for a Beauty Diagram themed SVG, with a
-preview ⇄ source toggle and an "Open in editor" link. It never modifies the page source.
+The extension swaps the native render for a Beauty Diagram themed SVG. Each diagram gets
+an inline toolbar — **source toggle**, **copy**, **zoom**, and **Open in editor** — and you
+can click any diagram (or the `⤢ Zoom` button) to open a full-screen pan/zoom view
+(scroll to zoom, drag to pan, Esc to close). It never modifies the page source.
 
 - **Default sites:** github.com, gitlab.com (auto). Other sites: click the toolbar icon to grant access.
 - **Render path (v1):** anonymous `/v1/beautify.svg` (watermarked). Local-engine render is on the roadmap.
