@@ -18,6 +18,10 @@ describe('html ↔ script wiring', () => {
     expect(read('options.html')).toContain('src="dist/options.js"')
   })
 
+  it('release archive includes the toolbar popup document', () => {
+    expect(read('scripts/zip.mjs')).toContain("'popup.html'")
+  })
+
   it('manifest wires popup, options and the background worker', () => {
     const m = JSON.parse(read('manifest.json'))
     expect(m.action.default_popup).toBe('popup.html')
