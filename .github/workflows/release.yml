@@ -15,14 +15,10 @@ jobs:
       - run: npm ci
       - run: npm run typecheck && npm test && npm run build
       - run: node scripts/zip.mjs
-      - name: Upload to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v5.0.0
-        with:
-          file-path: beauty-diagram-browser-extension.zip
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      # Chrome Web Store upload is intentionally NOT automated: we submit the
+      # package by hand via the Developer Dashboard so the store listing (video,
+      # screenshots) can be updated in the same review. A version tag still
+      # builds, tests, and attaches a ready-to-upload zip to the GitHub Release.
       - name: GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
