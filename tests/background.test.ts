@@ -186,6 +186,21 @@ describe('verifyKey', () => {
     expect(init.headers['X-Bd-Client']).toBe('browser-ext')
   })
 
+  it('passes through granted scopes from /v1/usage', async () => {
+    const fetchFn = vi.fn().mockResolvedValue({
+      status: 200,
+      json: async () => ({
+        ok: true,
+        plan: 'pro',
+        exports: { used: 1, limit: 100 },
+        scopes: ['render:write', 'share:write'],
+      }),
+    })
+    const deps = makeVerifyDeps({ fetchFn: fetchFn as any })
+    const result = await verifyKey(deps)
+    expect(result.scopes).toEqual(['render:write', 'share:write'])
+  })
+
   it('returns limit: null when exports.limit is null', async () => {
     const fetchFn = vi.fn().mockResolvedValue({
       status: 200,

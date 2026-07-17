@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readForm } from '../src/options'
+import { readForm, watermarkFreeStatus } from '../src/options'
 
 describe('readForm', () => {
   it('collects settings from form fields (watermarkFree unchecked)', () => {
@@ -43,5 +43,27 @@ describe('readForm', () => {
       <input id="watermarkFree" type="checkbox" />`
     const s = readForm()
     expect('apiKey' in s).toBe(false)
+  })
+})
+
+describe('watermarkFreeStatus', () => {
+  it('free plan → needs a Pro plan (regardless of scope)', () => {
+    expect(watermarkFreeStatus('free', ['share:write'])).toBe('Watermark-free needs a Pro plan')
+  })
+
+  it('Pro plan without share:write → flags the missing scope', () => {
+    expect(watermarkFreeStatus('pro', ['render:write', 'export:write'])).toContain('Create share links')
+  })
+
+  it('Pro plan with share:write → ready', () => {
+    expect(watermarkFreeStatus('pro', ['render:write', 'share:write'])).toBe('Watermark-free: ready')
+  })
+
+  it('premium with share:write → ready', () => {
+    expect(watermarkFreeStatus('premium', ['share:write'])).toBe('Watermark-free: ready')
+  })
+
+  it('Pro plan but scopes undefined (older API) → stays silent, no false "missing scope"', () => {
+    expect(watermarkFreeStatus('pro', undefined)).toBe('')
   })
 })

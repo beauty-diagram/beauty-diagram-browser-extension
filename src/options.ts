@@ -2,6 +2,25 @@ import { loadSettings, saveSettings, getApiKey, setApiKey, type Settings } from 
 import { FALLBACK_THEMES } from './constants'
 import type { VerifyKeyRequest, VerifyKeyResponse } from './messages'
 
+/**
+ * Pre-flight verdict for watermark-free, shown after Verify key so the user
+ * learns a key can't produce watermark-free renders BEFORE seeing a stubbornly
+ * watermarked diagram. Two independent gates must both pass:
+ *   1. Owner plan is Pro+ (the server keeps the watermark for free owners).
+ *   2. The key carries the 'share:write' scope — labelled “Create share links”
+ *      in the web key UI. Without it, minting a share 403s and the render
+ *      silently falls back to the watermarked path.
+ * Returns '' when plan is Pro+ but scopes are absent (older API that doesn't
+ * report them) so we never assert "missing scope" on incomplete data.
+ */
+export function watermarkFreeStatus(plan: string | undefined, scopes: string[] | undefined): string {
+  if (plan === 'free') return 'Watermark-free needs a Pro plan'
+  if (!scopes) return ''
+  return scopes.includes('share:write')
+    ? 'Watermark-free: ready'
+    : 'Watermark-free: key missing the “Create share links” scope'
+}
+
 export function readForm(): Settings {
   const theme = (document.getElementById('defaultTheme') as HTMLSelectElement).value
   const apiBase = (document.getElementById('apiBase') as HTMLInputElement).value
@@ -30,12 +49,20 @@ export function initOptions(): void {
   }
 
   document.getElementById('save')?.addEventListener('click', async () => {
-    await saveSettings(readForm()) // synced settings (excludes apiKey)
-    await setApiKey((document.getElementById('apiKey') as HTMLInputElement).value) // apiKey is local-only
+    const form = readForm()
+    const apiKey = (document.getElementById('apiKey') as HTMLInputElement).value
+    await saveSettings(form) // synced settings (excludes apiKey)
+    await setApiKey(apiKey) // apiKey is local-only
     const status = document.getElementById('status')
     if (status) {
-      status.textContent = 'Saved.'
-      setTimeout(() => { status.textContent = '' }, 1500)
+      // Watermark-free needs a key to mint share links; with the box on but no
+      // key the toggle is inert and renders silently stay watermarked. Say so at
+      // save time instead of letting the user discover it on the page.
+      const inert = form.watermarkFree && !apiKey.trim()
+      status.textContent = inert
+        ? 'Saved — but Watermark-free needs an API key above to take effect.'
+        : 'Saved.'
+      setTimeout(() => { status.textContent = '' }, inert ? 4000 : 1500)
     }
   })
 
@@ -50,7 +77,10 @@ export function initOptions(): void {
       if (!res) { verifyStatus.textContent = 'Error: no response from background.'; return }
       if (!res.ok) { verifyStatus.textContent = `Error: ${res.error ?? 'unknown'}`; return }
       const limitStr = res.limit == null ? '∞' : String(res.limit)
-      verifyStatus.textContent = `✓ Plan: ${res.plan ?? '?'} · Exports: ${res.used ?? 0} / ${limitStr}`
+      const wm = watermarkFreeStatus(res.plan, res.scopes)
+      verifyStatus.textContent =
+        `✓ Plan: ${res.plan ?? '?'} · Exports: ${res.used ?? 0} / ${limitStr}` +
+        (wm ? ` · ${wm}` : '')
     })
   })
 

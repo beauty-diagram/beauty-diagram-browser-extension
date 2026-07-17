@@ -92,8 +92,18 @@ export async function verifyKey(deps: VerifyDeps): Promise<VerifyKeyResponse> {
       },
     })
     if (res.status !== 200) return { ok: false, error: `http-${res.status}` }
-    const d = (await res.json()) as { plan?: string; exports?: { used: number; limit: number | null } }
-    return { ok: true, plan: d.plan, used: d.exports?.used, limit: d.exports?.limit ?? null }
+    const d = (await res.json()) as {
+      plan?: string
+      exports?: { used: number; limit: number | null }
+      scopes?: string[]
+    }
+    return {
+      ok: true,
+      plan: d.plan,
+      used: d.exports?.used,
+      limit: d.exports?.limit ?? null,
+      scopes: d.scopes,
+    }
   } catch {
     return { ok: false, error: 'network' }
   }

@@ -18,6 +18,8 @@ export interface VerifyKeyResponse {
   plan?: string
   used?: number
   limit?: number | null
+  /** Granted API-key scopes (from /v1/usage). Absent on older API deployments. */
+  scopes?: string[]
   error?: string
 }
 

@@ -53,4 +53,26 @@ describe('options wiring robustness', () => {
     await flush(); await flush()
     expect(document.querySelectorAll('#defaultTheme option').length).toBeGreaterThan(0)
   })
+
+  it('warns on Save when Watermark-free is on but no API key is entered', async () => {
+    setupChrome()
+    initOptions()
+    await flush(); await flush()
+    ;(document.getElementById('watermarkFree') as HTMLInputElement).checked = true
+    ;(document.getElementById('apiKey') as HTMLInputElement).value = ''
+    ;(document.getElementById('save') as HTMLButtonElement).click()
+    await flush()
+    expect(document.getElementById('status')?.textContent).toContain('needs an API key')
+  })
+
+  it('plain "Saved." when Watermark-free is on AND a key is present', async () => {
+    setupChrome()
+    initOptions()
+    await flush(); await flush()
+    ;(document.getElementById('watermarkFree') as HTMLInputElement).checked = true
+    ;(document.getElementById('apiKey') as HTMLInputElement).value = 'bd_live_abc'
+    ;(document.getElementById('save') as HTMLButtonElement).click()
+    await flush()
+    expect(document.getElementById('status')?.textContent).toBe('Saved.')
+  })
 })

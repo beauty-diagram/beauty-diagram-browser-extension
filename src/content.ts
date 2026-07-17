@@ -117,6 +117,14 @@ function mintShareViaBackground(
       if (res?.ok && res.token) {
         resolve({ token: res.token })
       } else {
+        // Mint failed → the render silently falls back to the watermarked
+        // /v1/beautify.svg path. Log WHY so a "still watermarked" report is
+        // diagnosable from the page console instead of a manual fetch probe.
+        // Common codes: 'no-api-key', 'http-401' (bad/revoked key), 'http-403'
+        // (key lacks the 'Create share links' / share:write scope), 'network'.
+        console.warn(
+          `[beauty-diagram] watermark-free unavailable — share mint failed (${res?.error ?? 'no-response'}); rendering with watermark`,
+        )
         resolve(null)
       }
     }),
